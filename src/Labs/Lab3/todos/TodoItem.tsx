@@ -2,7 +2,12 @@
 import { Todo } from "./types";
 
 const TodoItem = ({
-  todo = { done: true, title: "Buy milk", status: "COMPLETED" },
+  todo = {
+    id: 1, // default values
+    done: true,
+    title: "Buy milk",
+    status: "COMPLETED",
+  },
 }: { todo: Todo }) => {
   return (
     <li className="list-group-item">
