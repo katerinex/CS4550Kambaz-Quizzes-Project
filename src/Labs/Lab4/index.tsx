@@ -18,17 +18,17 @@ import CounterRedux from "./ReduxExamples/CounterRedux";
 import HelloRedux from "./ReduxExamples/HelloRedux";
 
 export default function Lab4() {
-  function sayHello() {
-    alert("Hello");
-  }
-
   const [counter, setCounter] = useState(0);
 
+  const handleSayHello = () => {
+    alert("Hello");
+  };
+
   return (
-    <div id="wd-passing-functions">
-      <h2>Lab 4</h2>
+    <div id="wd-passing-functions" className="container-fluid">
+      <h2 className="mb-4">Lab 4 - React State and Redux Examples</h2>
       <ReduxExamples />
-      <PassingFunctions theFunction={sayHello} />
+      <PassingFunctions theFunction={handleSayHello} />
       <ArrayStateVariable />
       <BooleanStateVariables />
       <ChildStateComponent counter={counter} setCounter={setCounter} />
