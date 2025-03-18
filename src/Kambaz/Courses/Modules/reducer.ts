@@ -6,7 +6,7 @@ interface Module {
   name: string;
   course: string;
   editing?: boolean;
-  // ... other module properties
+  
 }
 
 interface ModulesState {
