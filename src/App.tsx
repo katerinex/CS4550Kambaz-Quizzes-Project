@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 export default function App() {
   return (
     <HashRouter>
-      <Provider store={store}> {/* Wrap your application with the Provider */}
+      <Provider store={store}> 
         <Routes>
           <Route path="/" element={<Kambaz />} />
           <Route path="/Kambaz/*" element={<Kambaz />} />

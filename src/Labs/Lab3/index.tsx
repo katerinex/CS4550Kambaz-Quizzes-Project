@@ -5,7 +5,8 @@ import Highlight from "./Highlight";
 import VariablesAndConstants from "./VariablesAndConstants";
 import { useSelector } from "react-redux";
 import { ListGroup } from 'react-bootstrap';
-import TodoList from "./todos/TodoList";
+// import TodoList from "./todos/TodoList";
+import TodoList from "../Lab4/ReduxExamples/todos/TodoList";
 import AddingAndRemovingToFromArrays from "./AddingAndRemovingToFromArrays";
 import AddPathParameters from "./AddPathParameters";
 import ArrayIndexAndLength from "./ArrayIndexAndLength";
@@ -47,7 +48,6 @@ export default function Lab3() {
         ))}
       </ListGroup>
       <hr />
-
       <VariablesAndConstants/>
       <Add a={3} b={4} />
       <h4>Square of 4</h4>

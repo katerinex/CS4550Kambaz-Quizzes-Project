@@ -15,7 +15,7 @@ interface Course {
 }
 
 interface DashboardProps {
-  courses: Course[]; // Change this line to Course[] and make it required
+  courses: Course[]; 
   course?: Course;
   setCourse?: React.Dispatch<React.SetStateAction<Course>>;
   addNewCourse?: () => void;
