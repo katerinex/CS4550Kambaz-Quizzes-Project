@@ -1,4 +1,3 @@
-// src/Kambaz/index.tsx
 import { Routes, Route, Navigate } from "react-router-dom";
 import Account from "./Account";
 import Dashboard from "./Dashboard";
@@ -7,19 +6,18 @@ import Courses from "./Courses";
 import Calendar from "./Calendar";
 import Inbox from "./Inbox";
 import "./styles.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import Session from "./Account/Session";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setCourses,
-  deleteCourseSuccess,
-  updateCourseSuccess,
   fetchCoursesStart,
   fetchCoursesFailure,
-} from "./Courses/reducer";
+} from "./Courses/Reducer"; 
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
+import { Course } from "./types"; 
 
 export default function Kambaz() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
@@ -40,7 +38,11 @@ export default function Kambaz() {
       dispatch(setCourses(fetchedCourses));
     } catch (error) {
       console.error("Error fetching user courses:", error);
-      dispatch(fetchCoursesFailure(error.message || "Failed to fetch user courses"));
+      let errorMessage = "Failed to fetch user courses";
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
+      dispatch(fetchCoursesFailure(errorMessage));
     }
   };
 
@@ -56,7 +58,7 @@ export default function Kambaz() {
       } else {
         await userClient.unenrollFromCourse(currentUser._id, courseId);
       }
-      const updatedCourses = courses.map((course) => {
+      const updatedCourses = courses.map((course: Course) => { // Added Course type
         if (course._id === courseId) {
           return { ...course, enrolled: enrolled };
         } else {
@@ -66,7 +68,11 @@ export default function Kambaz() {
       dispatch(setCourses(updatedCourses));
     } catch (error) {
       console.error("Error updating enrollment:", error);
-      dispatch(fetchCoursesFailure(error.message || "Failed to update enrollment"));
+      let errorMessage = "Failed to update enrollment";
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
+      dispatch(fetchCoursesFailure(errorMessage));
     }
   };
 
@@ -91,7 +97,11 @@ export default function Kambaz() {
       dispatch(setCourses(fetchedCourses));
     } catch (error) {
       console.error("Error fetching courses:", error);
-      dispatch(fetchCoursesFailure(error.message || "Failed to fetch courses"));
+      let errorMessage = "Failed to fetch courses";
+      if (error instanceof Error) {
+        errorMessage = error.message || errorMessage;
+      }
+      dispatch(fetchCoursesFailure(errorMessage));
     }
   };
 
@@ -118,6 +128,7 @@ export default function Kambaz() {
               element={
                 <ProtectedRoute>
                   <Dashboard
+                    courses={courses} // Pass the courses prop
                     enrolling={enrolling}
                     setEnrolling={setEnrolling}
                     updateEnrollment={updateEnrollment}
@@ -130,6 +141,7 @@ export default function Kambaz() {
               element={
                 <ProtectedRoute>
                   <Dashboard
+                    courses={courses} // Pass the courses prop
                     enrolling={enrolling}
                     setEnrolling={setEnrolling}
                     updateEnrollment={updateEnrollment}
@@ -141,7 +153,7 @@ export default function Kambaz() {
               path="/Courses/:cid/*"
               element={
                 <ProtectedRoute>
-                  <Courses />
+                  <Courses courses={courses} /> // Pass the courses prop
                 </ProtectedRoute>
               }
             />
