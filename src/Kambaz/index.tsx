@@ -14,7 +14,7 @@ import {
   setCourses,
   fetchCoursesStart,
   fetchCoursesFailure,
-} from "./Courses/Reducer"; 
+} from "./Courses/reducer"; 
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
 import { Course } from "./types"; 

@@ -1,4 +1,3 @@
-
 // src/Kambaz/Courses/reducer.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { Course } from "./../types"; 
@@ -11,7 +10,7 @@ interface CoursesState {
 }
 
 const initialState: CoursesState = {
-  courses: [], // Correctly initialized as an empty array
+  courses: [], 
   course: null,
   loading: false,
   error: null,
