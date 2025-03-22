@@ -1,8 +1,7 @@
 // src/Kambaz/Courses/Assignments/client.ts
 
 import axios from "axios";
-
-const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/assignments`;
 
 export const createAssignment = async (assignment: any) => {

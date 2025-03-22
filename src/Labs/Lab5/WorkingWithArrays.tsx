@@ -3,8 +3,8 @@
 import  { useState } from "react";
 import { FormControl } from "react-bootstrap";
 
-const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
-
+//const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 export default function WorkingWithArrays() {
   const API = `${REMOTE_SERVER}/lab5/todos`;
   const [todo, setTodo] = useState({

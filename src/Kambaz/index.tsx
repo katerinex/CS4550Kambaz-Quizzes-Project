@@ -1,3 +1,5 @@
+//src/Kambaz/index.tsx
+
 import { Routes, Route, Navigate } from "react-router-dom";
 import Account from "./Account";
 import Dashboard from "./Dashboard";
@@ -18,6 +20,7 @@ import {
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
 import { Course } from "./types"; 
+
 
 export default function Kambaz() {
   const { currentUser } = useSelector((state: any) => state.accountReducer);
@@ -121,7 +124,7 @@ export default function Kambaz() {
         <KambazNavigation />
         <div className="wd-main-content-offset p-3" style={{ flex: 1 }}>
           <Routes>
-            <Route path="/" element={<Navigate to="/Kambaz/Dashboard" />} />
+            <Route path="/" element={<Navigate to="Account" />} />
             <Route path="/Account/*" element={<Account />} />
             <Route
               path="/Dashboard"

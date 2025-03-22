@@ -1,8 +1,8 @@
 //src/Labs/Lab5/WorkingWithObjects.tsx
 import { useState } from "react";
 import { FormControl } from "react-bootstrap";
-const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
-
+//const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 export default function WorkingWithObjects() {
   const [assignment, setAssignment] = useState({
     id: 1,

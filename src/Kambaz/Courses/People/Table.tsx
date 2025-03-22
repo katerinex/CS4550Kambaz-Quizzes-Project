@@ -4,7 +4,7 @@ import { Table, Button, Form, FormControl, Modal } from "react-bootstrap";
 import { useParams, Link } from "react-router-dom";
 import * as client from "./client";
 import { FaUserCircle } from "react-icons/fa";
-import PeopleDetails from "./Details"; // Import PeopleDetails
+import PeopleDetails from "./Details"; 
 
 interface User {
   _id: string;

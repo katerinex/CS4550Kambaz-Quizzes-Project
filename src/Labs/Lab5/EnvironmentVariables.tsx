@@ -1,4 +1,5 @@
-const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+// src/Labs/Lab5/EnvironmentVariables.tsx
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 export default function EnvironmentVariables() {
   return (
     <div id="wd-environment-variables">

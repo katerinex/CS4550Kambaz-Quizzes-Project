@@ -5,7 +5,7 @@ import GreenCheckmark from "./GreenCheckmark";
 import { useState } from "react";
 import ModuleEditor from "./ModuleEditor";
 import { FaTrash } from "react-icons/fa";
-import { FaPencil } from "react-icons/fa6"; // Import FaPencil
+import { FaPencil } from "react-icons/fa6"; 
 
 interface ModuleControlButtonsProps {
   moduleName: string;
@@ -13,7 +13,7 @@ interface ModuleControlButtonsProps {
   addModule: () => void;
   moduleId: string;
   deleteModule: (moduleId: string) => void;
-  editModule: (moduleId: string) => void; // Add editModule prop
+  editModule: (moduleId: string) => void; 
 }
 
 export default function ModuleControlButtons({

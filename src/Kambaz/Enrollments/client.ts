@@ -1,7 +1,9 @@
 // src/Kambaz/Enrollments/client.ts
 import axios from "axios";
 
-const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+//const REMOTE_SERVER = process.env.REACT_APP_REMOTE_SERVER;
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
+
 const ENROLLMENTS_API = `${REMOTE_SERVER}/api/enrollments`;
 
 export const enrollUserInCourse = async (user: string, course: string) => {
