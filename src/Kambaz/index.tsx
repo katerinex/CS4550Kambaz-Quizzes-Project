@@ -124,14 +124,14 @@ export default function Kambaz() {
         <KambazNavigation />
         <div className="wd-main-content-offset p-3" style={{ flex: 1 }}>
           <Routes>
-            <Route path="/" element={<Navigate to="Account" />} />
+            <Route path="/*" element={<Navigate to="Account" replace />} />
             <Route path="/Account/*" element={<Account />} />
             <Route
               path="/Dashboard"
               element={
                 <ProtectedRoute>
                   <Dashboard
-                    courses={courses} // Pass the courses prop
+                    courses={courses} 
                     enrolling={enrolling}
                     setEnrolling={setEnrolling}
                     updateEnrollment={updateEnrollment}
@@ -144,7 +144,7 @@ export default function Kambaz() {
               element={
                 <ProtectedRoute>
                   <Dashboard
-                    courses={courses} // Pass the courses prop
+                    courses={courses} 
                     enrolling={enrolling}
                     setEnrolling={setEnrolling}
                     updateEnrollment={updateEnrollment}
@@ -156,7 +156,7 @@ export default function Kambaz() {
               path="/Courses/:cid/*"
               element={
                 <ProtectedRoute>
-                  <Courses courses={courses} /> // Pass the courses prop
+                  <Courses courses={courses} /> 
                 </ProtectedRoute>
               }
             />

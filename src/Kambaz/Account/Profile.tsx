@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
 import { Form, Button, FormControl } from "react-bootstrap";
-import * as client from "./client"; // Import client
+import * as client from "./client"; 
 
 export default function Profile() {
   const [profile, setProfile] = useState<any>({});
