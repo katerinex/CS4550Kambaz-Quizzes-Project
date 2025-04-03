@@ -1,4 +1,4 @@
-// src/Labs/index.tsx
+// src/Labs/index.tsx - Fixed Router Configuration
 import React from 'react';
 import { Route, Routes, useNavigate } from "react-router-dom";
 import Lab1 from "./Lab1";
@@ -11,32 +11,33 @@ import store from "./store";
 import { Provider } from "react-redux";
 
 export default function Labs() {
-const navigate = useNavigate();
-return (
-<Provider store={store}>
-<div className="p-3">
-<h1>Labs</h1>
-<TOC />
-<Routes>
-<Route path="/" element={<NavigateToLab1 navigate={navigate} />} />
-<Route path="Lab1" element={<Lab1 />} />
-<Route path="Lab2/*" element={<Lab2 />} />
-<Route path="Lab3/" element={<Lab3 />} />
-<Route path="Lab4/" element={<Lab4 />} />
-<Route path="Lab5/" element={<Lab5 />} />
-</Routes>
-</div>
-</Provider>
-);
+  const navigate = useNavigate();
+  return (
+    <Provider store={store}>
+      <div className="p-3">
+        <h1>Labs</h1>
+        <TOC />
+        <Routes>
+          <Route path="/" element={<NavigateToLab1 navigate={navigate} />} />
+          <Route path="Lab1" element={<Lab1 />} />
+          <Route path="Lab2/*" element={<Lab2 />} />
+          {/* Fix: Added trailing wildcard to nested routes paths */}
+          <Route path="Lab3/*" element={<Lab3 />} />
+          <Route path="Lab4/*" element={<Lab4 />} />
+          <Route path="Lab5/*" element={<Lab5 />} />
+        </Routes>
+      </div>
+    </Provider>
+  );
 }
 
 interface NavigateToLab1Props {
-navigate: ReturnType<typeof useNavigate>;
+  navigate: ReturnType<typeof useNavigate>;
 }
 
 const NavigateToLab1: React.FC<NavigateToLab1Props> = ({ navigate }) => {
-React.useEffect(() => {
-navigate("Lab1");
-}, [navigate]);
-return null;
+  React.useEffect(() => {
+    navigate("Lab1");
+  }, [navigate]);
+  return null;
 };

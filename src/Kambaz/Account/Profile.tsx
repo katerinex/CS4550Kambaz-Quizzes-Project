@@ -11,11 +11,11 @@ export default function Profile() {
   const [profile, setProfile] = useState<any>({});
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const { user } = useSelector((state: any) => state.accountReducer); // Changed from currentUser to user
 
   const fetchProfile = () => {
-    if (!currentUser) return navigate("/Kambaz/Account/Signin");
-    setProfile(currentUser);
+    if (!user) return navigate("/Kambaz/Account/Signin");
+    setProfile(user);
   };
 
   const signout = () => {
@@ -30,7 +30,15 @@ export default function Profile() {
 
   useEffect(() => {
     fetchProfile();
-  }, [currentUser, navigate]);
+  }, [user, navigate]); // Changed from currentUser to user
+
+  // Handle form field changes
+  const handleChange = (field: string, value: string) => {
+    setProfile({
+      ...profile,
+      [field]: value
+    });
+  };
 
   return (
     <div className="wd-profile-screen p-4">
@@ -40,69 +48,61 @@ export default function Profile() {
           <Form.Group className="mb-2">
             <Form.Label>Username</Form.Label>
             <FormControl
-              defaultValue={profile.username}
+              value={profile.username || ""}
               id="wd-username"
-              onChange={(e) =>
-                setProfile({ ...profile, username: e.target.value })
-              }
+              onChange={(e) => handleChange("username", e.target.value)}
             />
           </Form.Group>
           <Form.Group className="mb-2">
             <Form.Label>Password</Form.Label>
             <FormControl
-              defaultValue={profile.password}
+              value={profile.password || ""}
               id="wd-password"
               type="password"
-              onChange={(e) =>
-                setProfile({ ...profile, password: e.target.value })
-              }
+              onChange={(e) => handleChange("password", e.target.value)}
             />
           </Form.Group>
           <Form.Group className="mb-2">
             <Form.Label>First Name</Form.Label>
             <FormControl
-              defaultValue={profile.firstName}
+              value={profile.firstName || ""}
               id="wd-firstname"
-              onChange={(e) =>
-                setProfile({ ...profile, firstName: e.target.value })
-              }
+              onChange={(e) => handleChange("firstName", e.target.value)}
             />
           </Form.Group>
           <Form.Group className="mb-2">
             <Form.Label>Last Name</Form.Label>
             <FormControl
-              defaultValue={profile.lastName}
+              value={profile.lastName || ""}
               id="wd-lastname"
-              onChange={(e) =>
-                setProfile({ ...profile, lastName: e.target.value })
-              }
+              onChange={(e) => handleChange("lastName", e.target.value)}
             />
           </Form.Group>
           <Form.Group className="mb-2">
             <Form.Label>Date of Birth</Form.Label>
             <FormControl
-              defaultValue={profile.dob}
+              value={profile.dob || ""}
               id="wd-dob"
               type="date"
-              onChange={(e) => setProfile({ ...profile, dob: e.target.value })}
+              onChange={(e) => handleChange("dob", e.target.value)}
             />
           </Form.Group>
           <Form.Group className="mb-2">
             <Form.Label>Email</Form.Label>
             <FormControl
-              defaultValue={profile.email}
+              value={profile.email || ""}
               id="wd-email"
               type="email"
-              onChange={(e) => setProfile({ ...profile, email: e.target.value })}
+              onChange={(e) => handleChange("email", e.target.value)}
             />
           </Form.Group>
           <Form.Group className="mb-2">
             <Form.Label>Role</Form.Label>
             <FormControl
               as="select"
-              defaultValue={profile.role}
+              value={profile.role || "USER"}
               id="wd-role"
-              onChange={(e) => setProfile({ ...profile, role: e.target.value })}
+              onChange={(e) => handleChange("role", e.target.value)}
             >
               <option value="USER">User</option>
               <option value="ADMIN">Admin</option>

@@ -1,8 +1,11 @@
 // src/Kambaz/Dashboard.tsx
-import React from "react";
-import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
+
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
 import { Button } from 'react-bootstrap';
+import * as client from "./Account/client";
+import { setCurrentUser } from "./Account/reducer";
 
 interface Course {
   _id: string;
@@ -15,7 +18,7 @@ interface Course {
 }
 
 interface DashboardProps {
-  courses: Course[]; 
+  courses: Course[];
   course?: Course;
   setCourse?: React.Dispatch<React.SetStateAction<Course>>;
   addNewCourse?: () => void;
@@ -37,7 +40,34 @@ export default function Dashboard({
   setEnrolling,
   updateEnrollment,
 }: DashboardProps) {
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  // Get user from Redux state - match the property name in your reducer
+  const { user } = useSelector((state: any) => state.accountReducer);
+  const { loading: coursesLoading, error: coursesError } = useSelector((state: any) => state.coursesReducer);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  // Async function to fetch the user profile from the backend
+  const fetchProfile = async () => {
+    try {
+      console.log("Dashboard: Fetching user profile...");
+      const userProfile = await client.profile();
+      console.log("Dashboard: Profile response:", userProfile);
+      dispatch(setCurrentUser(userProfile));
+    } catch (error: any) {
+      console.error("Error fetching profile in Dashboard:", error);
+      if (error.response?.status === 401) {
+        navigate("/Kambaz/Account/Signin");
+      }
+    } finally {
+      setLoadingProfile(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
 
   const handleAddCourse = () => {
     if (addNewCourse) {
@@ -70,10 +100,21 @@ export default function Dashboard({
   };
 
   const displayCurrentUser = () => {
-    if (currentUser) {
-      console.log("Current user:", currentUser);
+    if (user) {
+      console.log("Current user:", user);
+    } else {
+      console.log("User is null or undefined");
     }
   };
+
+  // Render a loading indicator while the profile is being fetched
+  if (loadingProfile) {
+    return <div>Loading user data...</div>;
+  }
+
+  // Debug information to help troubleshoot
+  console.log("Dashboard render - User:", user);
+  console.log("Dashboard render - Courses:", courses);
 
   return (
     <div className="p-4" id="wd-dashboard">
@@ -87,51 +128,78 @@ export default function Dashboard({
         </button>
       </h1>
       <hr />
-      <h2 id="wd-dashboard-published">Published Courses</h2>
+      
+      {coursesError && (
+        <div className="alert alert-danger">
+          Error loading courses: {coursesError}
+        </div>
+      )}
+
+      {user && <h2 id="wd-dashboard-published">Welcome, {user.firstName || user.username}</h2>}
       <hr />
       <div className="row" id="wd-dashboard-courses">
-        <div className="row row-cols-1 row-cols-md-5 g-4">
-          {courses.map((course) => ( 
-            <div key={course._id} className="col" style={{ width: "300px" }}>
-              <div className="card">
-                <div className="card-body">
-                  <h5 className="wd-dashboard-course-title card-title">
-                    {enrolling && (
-                      <button
-                        onClick={(event) => {
-                          event.preventDefault();
-                          updateEnrollment(course._id, !course.enrolled);
-                        }}
-                        className={`btn ${course.enrolled ? "btn-danger" : "btn-success"} float-end`}
+        {coursesLoading ? (
+          <div className="col-12">
+            <p>Loading courses...</p>
+          </div>
+        ) : (
+          <div className="row row-cols-1 row-cols-md-5 g-4">
+            {courses && courses.length > 0 ? (
+              courses.map((course) => (
+                <div key={course._id || `course-${Math.random()}`} className="col" style={{ width: "300px" }}>
+                  <div className="card">
+                    <div className="card-body">
+                      <h5 className="wd-dashboard-course-title card-title">
+                        {enrolling && (
+                          <button
+                            onClick={(event) => {
+                              event.preventDefault();
+                              // More robust validation
+                              if (!course || !course._id || course._id === "undefined") {
+                                console.error("Invalid course ID detected:", course);
+                                alert("Cannot enroll in this course - missing course ID");
+                                return; // Prevent enrollment with invalid course ID
+                              }
+                              
+                              console.log(`Enrolling in course with ID: ${course._id}`);
+                              updateEnrollment(course._id, !course.enrolled);
+                            }}
+                            className={`btn ${course.enrolled ? "btn-danger" : "btn-success"} float-end`}
+                          >
+                            {course.enrolled ? "Unenroll" : "Enroll"}
+                          </button>
+                        )}
+                        {course.name}
+                      </h5>
+                      <p className="card-text">{course.description}</p>
+                      <Link
+                        to={`/Kambaz/Courses/${course._id}`}
+                        className="btn btn-primary"
                       >
-                        {course.enrolled ? "Unenroll" : "Enroll"}
-                      </button>
-                    )}
-                    {course.name}
-                  </h5>
-                  <p className="card-text">{course.description}</p>
-                  <Link
-                    to={`/Kambaz/Courses/${course._id}`}
-                    className="btn btn-primary"
-                  >
-                    Go
-                  </Link>
+                        Go
+                      </Link>
+                    </div>
+                  </div>
                 </div>
+              ))
+            ) : (
+              <div className="col-12">
+                <p>No courses available. {enrolling ? "Try selecting 'All Courses' to enroll in available courses." : "You are not enrolled in any courses."}</p>
               </div>
-            </div>
-          ))}
-        </div>
+            )}
+          </div>
+        )}
       </div>
-      <Button onClick={handleAddCourse}>Add Course</Button>
-      <Button onClick={() => handleDeleteCourse("someId")}>
-        Delete Course
-      </Button>
-      <Button onClick={handleUpdateCourse}>Update Course</Button>
-      <Button onClick={() => handleSetCourse({} as Course)}>
-        Set Course
-      </Button>
-      <Button onClick={displayCourse}>Display Course</Button>
-      <Button onClick={displayCurrentUser}>Display Current User</Button>
+      
+      {/* Development buttons - can be removed in production */}
+      <div className="mt-4">
+        <Button key="add-btn" variant="outline-primary" className="me-2" onClick={handleAddCourse}>Add Course</Button>
+        <Button key="delete-btn" variant="outline-danger" className="me-2" onClick={() => handleDeleteCourse("someId")}>Delete Course</Button>
+        <Button key="update-btn" variant="outline-primary" className="me-2" onClick={handleUpdateCourse}>Update Course</Button>
+        <Button key="set-btn" variant="outline-secondary" className="me-2" onClick={() => handleSetCourse({} as Course)}>Set Course</Button>
+        <Button key="display-course-btn" variant="outline-info" className="me-2" onClick={displayCourse}>Display Course</Button>
+        <Button key="display-user-btn" variant="outline-info" onClick={displayCurrentUser}>Display Current User</Button>
+      </div>
     </div>
   );
 }

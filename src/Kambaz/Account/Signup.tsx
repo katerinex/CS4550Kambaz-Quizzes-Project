@@ -1,82 +1,78 @@
 // src/Kambaz/Account/Signup.tsx
-
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+// Adding better error handling to display errors to users
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import * as client from "./client";
 import { useDispatch } from "react-redux";
 import { setCurrentUser } from "./reducer";
-import { Form, Button, FormControl, Container, Row, Col, Card, Alert } from "react-bootstrap";
+import { FormControl, Alert } from "react-bootstrap"; 
 
 export default function Signup() {
   const [user, setUser] = useState<any>({});
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [error, setError] = useState("");
-
+  
   const signup = async () => {
+    // Clear any previous errors
+    setError(null);
+    
+    // Basic validation
+    if (!user.username || !user.password) {
+      setError("Username and password are required");
+      return;
+    }
+    
     try {
       const currentUser = await client.signup(user);
       dispatch(setCurrentUser(currentUser));
       navigate("/Kambaz/Account/Profile");
     } catch (error: any) {
-      setError(error.response.data.message);
+      // Display the error message from the server if available
+      if (error.response && error.response.data && error.response.data.message) {
+        setError(error.response.data.message);
+      } else {
+        setError("An error occurred during signup. Please try again.");
+      }
+      console.error("Signup failed:", error);
     }
   };
-
+  
   return (
-    <Container fluid className="vh-100 d-flex align-items-center justify-content-center bg-light">
-      <Row className="w-100 justify-content-center">
-        <Col xs={12} sm={8} md={6}>
-          <Card className="shadow-sm">
-            <Card.Body className="p-4">
-              <div className="text-center mb-4">
-                <img
-                  src="/images/NEU.png"
-                  alt="Northeastern University"
-                  style={{ width: "200px" }}
-                />
-              </div>
-
-              <h4 className="text-center mb-4">Create New Account</h4>
-
-              {error && <Alert variant="danger">{error}</Alert>}
-
-              <Form onSubmit={(e) => { e.preventDefault(); signup(); }}>
-                <Form.Group className="mb-3">
-                  <Form.Label>Username</Form.Label>
-                  <FormControl
-                    value={user.username || ""}
-                    onChange={(e) => setUser({ ...user, username: e.target.value })}
-                    placeholder="username"
-                    required
-                  />
-                </Form.Group>
-                <Form.Group className="mb-3">
-                  <Form.Label>Password</Form.Label>
-                  <FormControl
-                    type="password"
-                    value={user.password || ""}
-                    onChange={(e) => setUser({ ...user, password: e.target.value })}
-                    placeholder="password"
-                    required
-                  />
-                </Form.Group>
-                <Button variant="danger" type="submit" className="w-100 mb-3">
-                  Create Account
-                </Button>
-                <div className="text-center">
-                  <Button
-                    variant="link"
-                    onClick={() => navigate("/Kambaz/Account/Signin")}
-                  >
-                    Already have an account? Sign in
-                  </Button>
-                </div>
-              </Form>
-            </Card.Body>
-          </Card>
-        </Col>
-      </Row>
-    </Container>
+    <div className="wd-signup-screen">
+      <h1>Sign up</h1>
+      
+      {error && (
+        <Alert variant="danger" className="mb-3">
+          {error}
+        </Alert>
+      )}
+      
+      <FormControl
+        value={user.username || ""}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUser({ ...user, username: e.target.value })}
+        className="wd-username mb-2"
+        placeholder="username"
+      />
+      
+      <FormControl
+        value={user.password || ""}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUser({ ...user, password: e.target.value })}
+        className="wd-password mb-2"
+        placeholder="password"
+        type="password"
+      />
+      
+      <button onClick={signup} className="wd-signup-btn btn btn-primary mb-2 w-100">
+        Sign up
+      </button>
+      
+      <br />
+      
+      <Link to="/Kambaz/Account/Signin" className="wd-signin-link">
+        Sign in
+      </Link>
+    </div>
   );
 }
+

@@ -1,4 +1,5 @@
 // src/Kambaz/Courses/index.tsx
+
 import CourseNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
@@ -18,19 +19,33 @@ export default function Courses({ courses }: { courses: any[]; }) {
   const { cid } = useParams<{ cid: string }>();
   const course = courses.find((course) => course._id === cid);
   const { pathname } = useLocation();
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
-  const enrollments = useSelector((state: any) => state.enrollmentsReducer);
+  // Changed from currentUser to user to match Redux state
+  const { user } = useSelector((state: any) => state.accountReducer);
+  const enrollments = useSelector((state: any) => state.enrollmentsReducer || []);
   const navigate = useNavigate();
+  
+  // Debug logging
+  console.log("Course component - Course:", course);
+  console.log("Course component - User:", user);
+  console.log("Course component - Enrollments:", enrollments);
 
   if (!course) {
     return <div>Course not found.</div>;
   }
-
-  const isEnrolled = enrollments.some(
-    (enrollment: Enrollment) => enrollment.user === currentUser?.id && enrollment.course === cid
+  
+  // Check if the user is enrolled either through the course's enrolled property
+  // or through the enrollments array
+  const isEnrolledThroughProperty = course.enrolled === true;
+  
+  const isEnrolledThroughArray = Array.isArray(enrollments) && enrollments.some(
+    (enrollment: Enrollment) => enrollment.user === user?.id && enrollment.course === cid
   );
-
-  if (currentUser?.role === "STUDENT" && !isEnrolled) {
+  
+  const isEnrolled = isEnrolledThroughProperty || isEnrolledThroughArray;
+  
+  // Only redirect students who aren't enrolled
+  if (user?.role === "STUDENT" && !isEnrolled) {
+    console.log("Student not enrolled, redirecting to dashboard");
     navigate("/Kambaz/Dashboard");
     return null;
   }
@@ -39,7 +54,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
     <div id="wd-courses">
       <h2 className="text-danger">
         <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {course.name} &gt; {pathname.split("/")[4]}
+        {course.name} &gt; {pathname.split("/")[4] || "Home"}
       </h2>
       <hr />
       <div className="d-flex">

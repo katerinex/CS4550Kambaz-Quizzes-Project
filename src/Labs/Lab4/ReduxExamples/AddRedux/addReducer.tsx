@@ -1,4 +1,4 @@
-
+//src/Labs/Lab4/ReduxExamples/AddRedux/addReducer.tsx
 import { createSlice } from "@reduxjs/toolkit";
 export interface AddState {
   sum: number;

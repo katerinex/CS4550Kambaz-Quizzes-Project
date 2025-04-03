@@ -1,4 +1,4 @@
-/* src/Kambaz/styles.css */
+/* src/Kambaz/styles.css - COMPLETE UPDATED FILE */
 body {
   margin: 0;
   padding: 0;
@@ -140,6 +140,21 @@ body {
   box-sizing: border-box;
 }
 
+/* Sign-up Screen - NEW STYLES */
+.wd-signup-screen {
+  width: 320px;
+  max-width: none;
+  min-width: 320px;
+  height: auto;
+  padding: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
 /* Account Navigation */
 #wd-account-navigation {
   width: 200px;
@@ -164,6 +179,18 @@ body {
 
 #wd-account-navigation a:hover {
   text-decoration: underline;
+}
+
+/* Override for Account area when on signin/signup pages */
+#wd-account-screen.signin-signup-layout {
+  background-color: #f8f9fa; /* Light gray background */
+}
+
+#wd-account-screen.signin-signup-layout .flex-grow-1 {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Sidebar for Account */
@@ -239,6 +266,34 @@ body {
   padding: 20px;
 }
 
+/* Sign-up Form styling - NEW STYLES */
+.wd-signup-screen h1 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.wd-signup-screen .form-control {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.wd-signup-btn {
+  background-color: #DC4C64;
+  border-color: #DC4C64;
+}
+
+.wd-signup-btn:hover {
+  background-color: #c93b53;
+  border-color: #c93b53;
+}
+
+.wd-signin-link {
+  display: block;
+  text-align: center;
+  margin-top: 5px;
+}
+
 .bg-light {
   background-color: #f8f9fa;
 }
@@ -281,7 +336,8 @@ body {
 
 /* VERY Small Screens */
 @media (max-width: 400px) {
-    #wd-signin-screen {
+    #wd-signin-screen,
+    .wd-signup-screen {
         width: 95%; /* Allow it to take up almost the full screen width */
         min-width: auto; /* Allow it to shrink if necessary */
         max-width: none;

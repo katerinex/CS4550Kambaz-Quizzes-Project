@@ -1,8 +1,10 @@
 // src/Labs/Lab4/ReduxExamples/todos/TodoList.tsx
+// Fix the missing key prop in TodoList.tsx
 import { ListGroup } from 'react-bootstrap';
 import TodoForm from "./TodoForm";
 import TodoItem from "./TodoItem";
 import { useSelector } from "react-redux";
+
 export default function TodoList() {
   const { todos } = useSelector((state: any) => state.todosReducer);
   return (
@@ -11,9 +13,11 @@ export default function TodoList() {
       <ListGroup>
         <TodoForm />
         {todos.map((todo: any) => (
-          <TodoItem todo={todo} />
+          // Add the key prop here
+          <TodoItem todo={todo} key={todo.id} />
         ))}
       </ListGroup>
       <hr/>
     </div>
-);}
+  );
+}
