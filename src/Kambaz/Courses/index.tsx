@@ -1,10 +1,10 @@
 // src/Kambaz/Courses/index.tsx
-
 import CourseNavigation from "./Navigation";
 import Modules from "./Modules";
 import Home from "./Home";
 import Assignments from "./Assignments";
 import AssignmentEditor from "./Assignments/Editor";
+import Quizzes from "./Quizzes"; // Import Quizzes component
 import PeopleTable from "./People/Table";
 import { FaAlignJustify } from "react-icons/fa6";
 import { Navigate, Route, Routes, useParams, useLocation, useNavigate } from "react-router";
@@ -28,7 +28,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
   console.log("Course component - Course:", course);
   console.log("Course component - User:", user);
   console.log("Course component - Enrollments:", enrollments);
-
+  
   if (!course) {
     return <div>Course not found.</div>;
   }
@@ -36,11 +36,9 @@ export default function Courses({ courses }: { courses: any[]; }) {
   // Check if the user is enrolled either through the course's enrolled property
   // or through the enrollments array
   const isEnrolledThroughProperty = course.enrolled === true;
-  
   const isEnrolledThroughArray = Array.isArray(enrollments) && enrollments.some(
     (enrollment: Enrollment) => enrollment.user === user?.id && enrollment.course === cid
   );
-  
   const isEnrolled = isEnrolledThroughProperty || isEnrolledThroughArray;
   
   // Only redirect students who aren't enrolled
@@ -49,12 +47,15 @@ export default function Courses({ courses }: { courses: any[]; }) {
     navigate("/Kambaz/Dashboard");
     return null;
   }
-
+  
+  // Get the current section name (e.g., Home, Modules, etc.)
+  const sectionName = pathname.split("/")[4] || "Home";
+  
   return (
     <div id="wd-courses">
       <h2 className="text-danger">
         <FaAlignJustify className="me-4 fs-4 mb-1" />
-        {course.name} &gt; {pathname.split("/")[4] || "Home"}
+        {course.name} &gt; {sectionName}
       </h2>
       <hr />
       <div className="d-flex">
@@ -66,8 +67,9 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <Route path="/" element={<Navigate to="Home" />} />
             <Route path="Home" element={<Home />} />
             <Route path="Modules" element={<Modules courseId={cid} />} />
-            <Route path="Assignments" element={<Assignments />} />
+            <Route path="Assignments" element={<Assignments courseId={cid} />} />
             <Route path="Assignments/:aid" element={<AssignmentEditor />} />
+            <Route path="Quizzes/*" element={<Quizzes />} />
             <Route path="People" element={<PeopleTable />} />
             <Route path="*" element={<h2>Page Not Found</h2>} />
           </Routes>

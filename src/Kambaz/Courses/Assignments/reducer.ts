@@ -4,12 +4,13 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 interface Assignment {
   _id: string;
   title: string;
-  description: string;
-  points: number;
-  dueDate: string;
-  availableFromDate: string;
-  availableUntilDate: string;
+  description?: string;
+  points?: number;
+  dueDate?: string;
+  availableFromDate?: string;
+  availableUntilDate?: string;
   course: string;
+  published?: boolean;
 }
 
 interface AssignmentsState {
@@ -52,4 +53,5 @@ export const {
   updateAssignment,
   setAssignments,
 } = assignmentsSlice.actions;
+
 export default assignmentsSlice.reducer;

@@ -20,6 +20,7 @@ import {
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
 import { Course } from "./types";
+import axios from "axios";
 
 export default function Kambaz() {
   // Changed from currentUser to user to match your Redux state structure
@@ -36,25 +37,45 @@ export default function Kambaz() {
       setIsLoading(false);
       return;
     }
+    
     setIsLoading(true);
     dispatch(fetchCoursesStart());
+    
     try {
       console.log("Finding courses for user ID:", user._id);
-      const fetchedCourses = await userClient.findCoursesForUser(
-        user._id
-      );
-      console.log("Fetched courses:", fetchedCourses);
+      
+      // First, let's check if we can fetch all courses to verify course data exists
+      console.log("Fetching all courses to verify course data...");
+      const allCourses = await courseClient.findAllCourses();
+      console.log("All courses available in system:", allCourses);
+      
+      if (!Array.isArray(allCourses) || allCourses.length === 0) {
+        console.warn("No courses found in the system or invalid response format");
+      }
+      
+      // Then check the user courses endpoint
+      console.log("Fetching enrolled courses for user:", user._id);
+      const userCourses = await userClient.findCoursesForUser(user._id);
+      console.log("User courses response:", userCourses);
+      
+      // Validate the response
+      if (!Array.isArray(userCourses)) {
+        console.error("Enrolled courses not returned as an array:", userCourses);
+        dispatch(fetchCoursesFailure("Invalid response format from server"));
+        setError("Failed to load enrolled courses. Please try again later.");
+        setIsLoading(false);
+        return;
+      }
       
       // Filter out any courses without valid IDs
-      const validCourses = Array.isArray(fetchedCourses) 
-        ? fetchedCourses.filter((course: any) => course && course._id)
-        : [];
+      const validCourses = userCourses.filter((course: any) => course && course._id);
+      console.log("Valid enrolled courses:", validCourses);
         
       dispatch(setCourses(validCourses));
       setIsLoading(false);
     } catch (error) {
       console.error("Error fetching user courses:", error);
-      let errorMessage = "Failed to fetch user courses";
+      let errorMessage = "Failed to fetch your enrolled courses";
       if (error instanceof Error) {
         errorMessage = error.message || errorMessage;
       }
@@ -80,12 +101,17 @@ export default function Kambaz() {
     
     setIsLoading(true);
     dispatch(fetchCoursesStart());
+    
     try {
       if (enrolled) {
         await userClient.enrollIntoCourse(user._id, courseId);
+        console.log(`Successfully enrolled user ${user._id} in course ${courseId}`);
       } else {
         await userClient.unenrollFromCourse(user._id, courseId);
+        console.log(`Successfully unenrolled user ${user._id} from course ${courseId}`);
       }
+      
+      // Update the courses array with the new enrollment status
       const updatedCourses = courses.map((course: Course) => {
         if (course._id === courseId) {
           return { ...course, enrolled: enrolled };
@@ -93,6 +119,7 @@ export default function Kambaz() {
           return course;
         }
       });
+      
       dispatch(setCourses(updatedCourses));
       setIsLoading(false);
     } catch (error) {
@@ -113,42 +140,71 @@ export default function Kambaz() {
       setIsLoading(false);
       return;
     }
+    
     setIsLoading(true);
     dispatch(fetchCoursesStart());
+    
     try {
       console.log("Fetching all courses");
       const allCourses = await courseClient.findAllCourses();
       console.log("All courses:", allCourses);
       
+      // Validate all courses response
+      if (!Array.isArray(allCourses)) {
+        console.error("All courses not returned as an array:", allCourses);
+        dispatch(fetchCoursesFailure("Invalid response format from server"));
+        setError("Failed to load courses. Please try again later.");
+        setIsLoading(false);
+        return;
+      }
+      
+      // Filter out courses without valid IDs
+      const validAllCourses = allCourses.filter((course: any) => course && course._id);
+      console.log(`Found ${validAllCourses.length} valid courses`);
+      
+      if (validAllCourses.length === 0) {
+        console.warn("No valid courses found in the system");
+        dispatch(setCourses([]));
+        setIsLoading(false);
+        return;
+      }
+      
+      // Get user's enrolled courses to mark enrollment status
       console.log("Finding courses for user ID:", user._id);
-      const enrolledCourses = await userClient.findCoursesForUser(
-        user._id
-      );
-      console.log("User enrolled courses:", enrolledCourses);
+      let enrolledCourseIds: string[] = [];
       
-      // Filter out any courses without valid IDs before processing
-      const validAllCourses = Array.isArray(allCourses)
-        ? allCourses.filter((course: any) => course && course._id)
-        : [];
+      try {
+        const enrolledCourses = await userClient.findCoursesForUser(user._id);
+        console.log("User enrolled courses:", enrolledCourses);
         
-      const validEnrolledCourses = Array.isArray(enrolledCourses)
-        ? enrolledCourses.filter((course: any) => course && course._id)
-        : [];
-      
-      const fetchedCourses = validAllCourses.map((course: any) => {
-        if (validEnrolledCourses.find((c: any) => c._id === course._id)) {
-          return { ...course, enrolled: true };
+        if (Array.isArray(enrolledCourses)) {
+          // Extract just the IDs for comparison
+          enrolledCourseIds = enrolledCourses
+            .filter((course: any) => course && course._id)
+            .map((course: any) => course._id);
+            
+          console.log("Enrolled course IDs:", enrolledCourseIds);
         } else {
-          return course;
+          console.warn("Enrolled courses not returned as an array:", enrolledCourses);
         }
-      });
-      console.log("Processed courses with enrollment status:", fetchedCourses);
+      } catch (enrollError) {
+        console.error("Error fetching enrolled courses:", enrollError);
+        // Continue with empty enrollments rather than failing completely
+      }
       
-      dispatch(setCourses(fetchedCourses));
+      // Mark courses as enrolled based on the IDs we collected
+      const processedCourses = validAllCourses.map((course: any) => ({
+        ...course,
+        enrolled: enrolledCourseIds.includes(course._id)
+      }));
+      
+      console.log("Processed courses with enrollment status:", processedCourses);
+      
+      dispatch(setCourses(processedCourses));
       setIsLoading(false);
     } catch (error) {
-      console.error("Error fetching courses:", error);
-      let errorMessage = "Failed to fetch courses";
+      console.error("Error fetching all courses:", error);
+      let errorMessage = "Failed to fetch available courses";
       if (error instanceof Error) {
         errorMessage = error.message || errorMessage;
       }
@@ -181,6 +237,19 @@ export default function Kambaz() {
             <div className="alert alert-danger">
               <h4>Error Loading Data</h4>
               <p>{error}</p>
+              <button 
+                className="btn btn-sm btn-outline-danger" 
+                onClick={() => {
+                  setError(null);
+                  if (enrolling) {
+                    fetchCourses();
+                  } else {
+                    findCoursesForUser();
+                  }
+                }}
+              >
+                Try Again
+              </button>
             </div>
           )}
           

@@ -6,8 +6,13 @@ const USERS_API = `${REMOTE_SERVER}/api/users`;
 const COURSES_API = `${REMOTE_SERVER}/api/courses`;
 
 export const findUsersForCourse = async (courseId: string) => {
-  const response = await axios.get(`${COURSES_API}/${courseId}/users`);
-  return response.data;
+  try {
+    const response = await axios.get(`${COURSES_API}/${courseId}/users`);
+    return response.data;
+  } catch (error) {
+    console.error("Error in findUsersForCourse:", error);
+    return [];
+  }
 };
 
 export const createUser = async (user: any) => {

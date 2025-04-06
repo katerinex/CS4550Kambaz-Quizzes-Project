@@ -2,16 +2,13 @@
 import { useParams } from "react-router-dom";
 import Modules from "../Modules";
 import CourseStatus from "./Status";
-import CourseNavigation from "../Navigation";
 
 export default function Home() {
   const { cid } = useParams<{ cid?: string }>();
-
+  
   return (
     <div className="d-flex" id="wd-home">
-      <div className="d-none d-md-block">
-        <CourseNavigation courseId={cid} />
-      </div>
+      {/* Removed CourseNavigation from here since it's now in the parent Courses component */}
       <div className="flex-fill me-3">
         <Modules courseId={cid} />
       </div>

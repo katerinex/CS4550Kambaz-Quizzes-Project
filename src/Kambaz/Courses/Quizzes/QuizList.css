@@ -1,0 +1,183 @@
+/* QuizList.css
+ *
+ * Styles for the QuizList component to match Canvas UI
+ */
+
+ .quiz-list-container {
+  padding: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Quiz item card styling */
+.quiz-item {
+  transition: all 0.2s ease-in-out;
+  border-left: 4px solid transparent;
+  border-radius: 4px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-item:hover {
+  background-color: #f8f9fa;
+  border-left-color: #2d7b43; /* Canvas green color */
+}
+
+/* Published/unpublished status indicators */
+.publish-status-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: all 0.2s ease;
+}
+
+.publish-status-btn.btn-success {
+  background-color: #2d7b43; /* Canvas green color */
+  border-color: #2d7b43;
+}
+
+.publish-status-btn.btn-secondary {
+  background-color: #6c757d;
+}
+
+.publish-status-indicator {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.publish-status-indicator.text-success {
+  color: #2d7b43 !important; /* Canvas green color */
+}
+
+/* Quiz metadata styling */
+.quiz-metadata {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 10px;
+}
+
+.quiz-metadata strong {
+  font-weight: 500;
+  color: #444;
+}
+
+/* Empty state styling */
+.empty-state {
+  border: 2px dashed #dee2e6;
+  border-radius: 8px;
+  padding: 40px;
+  margin: 25px 0;
+  background-color: #f8f9fa;
+  text-align: center;
+}
+
+/* Quiz title styling */
+.card-title a {
+  color: #0374B5; /* Canvas blue color */
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.card-title a:hover {
+  text-decoration: underline;
+  color: #005a8c;
+}
+
+/* Availability badge styling */
+.badge-available {
+  background-color: #2d7b43;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: normal;
+}
+
+.badge-closed {
+  background-color: #6c757d;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: normal;
+}
+
+.badge-upcoming {
+  background-color: #e3a639;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-weight: normal;
+}
+
+/* Student score highlight */
+.text-success {
+  color: #2d7b43 !important;
+}
+
+/* Context menu dropdown styling */
+.dropdown-toggle.btn-sm {
+  padding: 0.25rem 0.4rem;
+  color: #6c757d;
+}
+
+.dropdown-menu {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dee2e6;
+}
+
+.dropdown-item {
+  padding: 0.5rem 1rem;
+  color: #444;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f7ff;
+  color: #0374B5;
+}
+
+/* Add quiz button styling */
+.btn-primary {
+  background-color: #0374B5; /* Canvas blue color */
+  border-color: #0374B5;
+}
+
+.btn-primary:hover {
+  background-color: #005a8c;
+  border-color: #005a8c;
+}
+
+/* Take quiz button styling */
+.btn-success {
+  background-color: #2d7b43; /* Canvas green color */
+  border-color: #2d7b43;
+}
+
+.btn-success:hover {
+  background-color: #236032;
+  border-color: #236032;
+}
+
+/* Page title styling */
+h1 {
+  color: #333;
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quiz-metadata .row > div {
+    margin-bottom: 0.5rem;
+  }
+}

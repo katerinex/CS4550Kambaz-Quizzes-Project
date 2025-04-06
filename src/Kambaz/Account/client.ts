@@ -1,5 +1,6 @@
 // src/Kambaz/Account/client.ts
 import axios from "axios";
+
 // Safe access to environment variables with fallbacks
 const getRemoteServer = () => {
   // First check for explicit environment variable
@@ -9,87 +10,189 @@ const getRemoteServer = () => {
   // Default to localhost in development
   return 'http://localhost:4000';
 };
+
 const REMOTE_SERVER = getRemoteServer();
 console.log("API server URL:", REMOTE_SERVER);
+
 // Configure axios with better defaults
 const axiosWithCredentials = axios.create({
   withCredentials: true,
   baseURL: REMOTE_SERVER,
-  timeout: 8000 // 8 second timeout
+  timeout: 15000 // Increased timeout to 15 seconds
 });
+
 export const USERS_API = `${REMOTE_SERVER}/api/users`;
+
 export const signin = async (credentials: any) => {
   try {
     const response = await axiosWithCredentials.post(`${USERS_API}/signin`, credentials);
+    console.log("Signin response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Signin failed");
+    console.error("Signin failed:", error);
     throw error;
   }
 };
+
 export const signup = async (user: any) => {
   try {
     const response = await axiosWithCredentials.post(`${USERS_API}/signup`, user);
+    console.log("Signup response:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Signup failed");
+    console.error("Signup failed:", error);
     throw error;
   }
 };
+
 export const updateUser = async (user: any) => {
-  const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
+    console.log("Update user response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Update user failed:", error);
+    throw error;
+  }
 };
+
 export const profile = async () => {
   try {
-    // CHANGED FROM POST TO GET - this is the crucial fix
+    console.log("Fetching user profile...");
     const response = await axiosWithCredentials.get(`${USERS_API}/profile`);
+    console.log("Profile response:", response.data);
     return response.data;
   } catch (error) {
-    // This error is expected when not logged in
+    console.error("Profile fetch failed:", error);
     throw error;
   }
 };
+
 export const signout = async () => {
-  const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
+    console.log("Signout response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Signout failed:", error);
+    throw error;
+  }
 };
+
 export const findMyCourses = async () => {
-  const response = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
-  return response.data;
+  try {
+    console.log("Fetching current user's courses...");
+    const response = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
+    console.log("Find my courses response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Find my courses failed:", error);
+    throw error;
+  }
 };
+
 export const createCourse = async (course: any) => {
-  const response = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
+    console.log("Create course response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Create course failed:", error);
+    throw error;
+  }
 };
+
 export const findAllUsers = async () => {
-  const response = await axiosWithCredentials.get(USERS_API);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.get(USERS_API);
+    return response.data;
+  } catch (error) {
+    console.error("Find all users failed:", error);
+    throw error;
+  }
 };
+
 export const findUsersByRole = async (role: string) => {
-  const response = await axiosWithCredentials.get(`${USERS_API}?role=${role}`);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.get(`${USERS_API}?role=${role}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Find users by role "${role}" failed:`, error);
+    throw error;
+  }
 };
+
 export const findUsersByPartialName = async (name: string) => {
-  const response = await axiosWithCredentials.get(`${USERS_API}?name=${name}`);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.get(`${USERS_API}?name=${name}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Find users by name "${name}" failed:`, error);
+    throw error;
+  }
 };
+
 export const findUserById = async (id: string) => {
-  const response = await axiosWithCredentials.get(`${USERS_API}/${id}`);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.get(`${USERS_API}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Find user by ID "${id}" failed:`, error);
+    throw error;
+  }
 };
+
 export const deleteUser = async (userId: string) => {
-  const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}`);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}`);
+    return response.data;
+  } catch (error) {
+    console.error(`Delete user "${userId}" failed:`, error);
+    throw error;
+  }
 };
+
 export const createUser = async (user: any) => {
-  const response = await axiosWithCredentials.post(`${USERS_API}`, user);
-  return response.data;
+  try {
+    const response = await axiosWithCredentials.post(`${USERS_API}`, user);
+    return response.data;
+  } catch (error) {
+    console.error("Create user failed:", error);
+    throw error;
+  }
 };
+
 export const findCoursesForUser = async (userId: string) => {
-  const response = await axiosWithCredentials.get(`${USERS_API}/${userId}/courses`);
-  return response.data;
+  if (!userId) {
+    console.error("findCoursesForUser called with no userId");
+    throw new Error("User ID is required");
+  }
+  
+  console.log(`Fetching courses for user ${userId}`);
+  
+  try {
+    const response = await axiosWithCredentials.get(`${USERS_API}/${userId}/courses`);
+    console.log(`Found ${response.data?.length || 0} courses for user ${userId}`);
+    
+    // Validate the response
+    if (!response.data) {
+      console.warn("Empty response from courses endpoint");
+      return [];
+    }
+    
+    // If we got a non-array response, log it but return an empty array
+    if (!Array.isArray(response.data)) {
+      console.error("Expected array but got:", typeof response.data, response.data);
+      return [];
+    }
+    
+    return response.data;
+  } catch (error) {
+    console.error(`Find courses for user "${userId}" failed:`, error);
+    throw error;
+  }
 };
+
 export const enrollIntoCourse = async (userId: string, courseId: string) => {
   // Add validation
   if (!userId || !courseId || courseId === "undefined") {
@@ -98,9 +201,17 @@ export const enrollIntoCourse = async (userId: string, courseId: string) => {
   }
   
   console.log(`Enrolling user ${userId} in course ${courseId}`);
-  const response = await axiosWithCredentials.post(`${USERS_API}/${userId}/courses/${courseId}`);
-  return response.data;
+  
+  try {
+    const response = await axiosWithCredentials.post(`${USERS_API}/${userId}/courses/${courseId}`);
+    console.log("Enrollment response:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error(`Enrolling user "${userId}" in course "${courseId}" failed:`, error);
+    throw error;
+  }
 };
+
 export const unenrollFromCourse = async (userId: string, courseId: string) => {
   // Add validation
   if (!userId || !courseId) {
@@ -108,6 +219,14 @@ export const unenrollFromCourse = async (userId: string, courseId: string) => {
     throw new Error("Both user ID and course ID are required for unenrollment");
   }
   
-  const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}/courses/${courseId}`);
-  return response.data;
+  console.log(`Unenrolling user ${userId} from course ${courseId}`);
+  
+  try {
+    const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}/courses/${courseId}`);
+    console.log("Unenrollment response:", response.status);
+    return response.data;
+  } catch (error) {
+    console.error(`Unenrolling user "${userId}" from course "${courseId}" failed:`, error);
+    throw error;
+  }
 };

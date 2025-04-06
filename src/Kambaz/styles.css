@@ -26,6 +26,8 @@ body {
   margin: 10px 0 20px 0;
   max-width: 100%;
   height: auto;
+  background-color: black;
+  
 }
 
 #wd-kambaz-navigation .list-group-item {
@@ -342,4 +344,76 @@ body {
         min-width: auto; /* Allow it to shrink if necessary */
         max-width: none;
     }
+}
+
+
+
+
+
+
+
+/* Add these styles to the end of your existing CSS file */
+
+/* Course Navigation Styles */
+.wd-course-navigation {
+  min-width: 200px;
+  border-radius: 0;
+  margin-right: 20px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+}
+
+.wd-course-navigation .list-group-item {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding: 12px 15px;
+  color: #495057;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.wd-course-navigation .list-group-item:last-child {
+  border-bottom: none;
+}
+
+.wd-course-navigation .list-group-item.active {
+  background-color: #e9ecef;
+  color: #dc3545;
+  border-color: #dee2e6;
+  font-weight: bold;
+}
+
+.wd-course-navigation .list-group-item:hover {
+  background-color: #e9ecef;
+  color: #dc3545;
+}
+
+/* Course Layout */
+#wd-home {
+  padding: 20px;
+  width: 100%;
+}
+
+/* Courses Container */
+#wd-courses {
+  width: 100%;
+  padding: 20px;
+}
+
+/* Make sure there's no duplicate margin */
+#wd-courses .wd-main-content-offset {
+  margin-left: 0;
+}
+
+/* Fix the modules display */
+#wd-modules {
+  width: 100%;
+}
+
+/* Make the course title more prominent */
+#wd-courses h2.text-danger {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
 }

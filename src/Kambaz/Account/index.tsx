@@ -9,7 +9,7 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router-dom";
 
 export default function Account() {
-  const { currentUser } = useSelector((state: any) => state.accountReducer);
+  const { user } = useSelector((state: any) => state.accountReducer); // Changed from currentUser to user
   const location = useLocation();
   
   // Check if the current route is signin or signup
@@ -29,7 +29,7 @@ export default function Account() {
             path="/"
             element={
               <Navigate
-                to={currentUser ? "/Kambaz/Account/Profile" : "/Kambaz/Account/Signin"}
+                to={user ? "/Kambaz/Account/Profile" : "/Kambaz/Account/Signin"}
               />
             }
           />

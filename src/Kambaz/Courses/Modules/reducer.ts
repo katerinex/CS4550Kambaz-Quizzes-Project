@@ -1,12 +1,22 @@
 // src/Kambaz/Courses/Modules/reducer.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
+interface Lesson {
+  _id: string;
+  name: string;
+  description?: string;
+  module: string;
+  published?: boolean;
+}
+
 interface Module {
   _id: string;
   name: string;
   course: string;
+  description?: string;
+  lessons?: Lesson[];
   editing?: boolean;
-  
+  published?: boolean;
 }
 
 interface ModulesState {
@@ -45,4 +55,5 @@ const modulesSlice = createSlice({
 
 export const { addModule, deleteModule, updateModule, editModule, setModules } =
   modulesSlice.actions;
+  
 export default modulesSlice.reducer;
