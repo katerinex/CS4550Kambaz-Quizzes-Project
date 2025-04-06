@@ -1,6 +1,8 @@
 // src/Kambaz/Courses/Quizzes/reducer.ts
+
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Quiz } from './client';
+import { Quiz } from './types';
+import { QuizAttempt } from './client';
 
 // Define the state type
 interface QuizState {
@@ -8,6 +10,8 @@ interface QuizState {
   currentQuiz: Quiz | null;
   loading: boolean;
   error: string | null;
+  quizAttempts: QuizAttempt[];
+  currentAttempt: QuizAttempt | null;
 }
 
 // Initial state
@@ -15,7 +19,9 @@ const initialState: QuizState = {
   quizzes: [],
   currentQuiz: null,
   loading: false,
-  error: null
+  error: null,
+  quizAttempts: [],
+  currentAttempt: null
 };
 
 // Create the quiz slice
@@ -120,6 +126,59 @@ const quizSlice = createSlice({
     // Clear current quiz
     clearCurrentQuiz: (state) => {
       state.currentQuiz = null;
+    },
+
+    // Quiz Attempt actions
+    fetchQuizAttemptsStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchQuizAttemptsSuccess: (state, action: PayloadAction<QuizAttempt[]>) => {
+      state.loading = false;
+      state.quizAttempts = action.payload;
+    },
+    fetchQuizAttemptsFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    createQuizAttemptStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    createQuizAttemptSuccess: (state, action: PayloadAction<QuizAttempt>) => {
+      state.loading = false;
+      state.quizAttempts.push(action.payload);
+      state.currentAttempt = action.payload;
+    },
+    createQuizAttemptFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    updateQuizAttemptStart: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    updateQuizAttemptSuccess: (state, action: PayloadAction<QuizAttempt>) => {
+      state.loading = false;
+      const index = state.quizAttempts.findIndex(attempt => attempt._id === action.payload._id);
+      if (index !== -1) {
+        state.quizAttempts[index] = action.payload;
+      }
+      state.currentAttempt = action.payload;
+    },
+    updateQuizAttemptFailure: (state, action: PayloadAction<string>) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+
+    setCurrentAttempt: (state, action: PayloadAction<QuizAttempt>) => {
+      state.currentAttempt = action.payload;
+    },
+
+    clearCurrentAttempt: (state) => {
+      state.currentAttempt = null;
     }
   }
 });
@@ -144,7 +203,19 @@ export const {
   togglePublishStart,
   togglePublishSuccess,
   togglePublishFailure,
-  clearCurrentQuiz
+  clearCurrentQuiz,
+  // Quiz Attempt actions
+  fetchQuizAttemptsStart,
+  fetchQuizAttemptsSuccess,
+  fetchQuizAttemptsFailure,
+  createQuizAttemptStart,
+  createQuizAttemptSuccess,
+  createQuizAttemptFailure,
+  updateQuizAttemptStart,
+  updateQuizAttemptSuccess,
+  updateQuizAttemptFailure,
+  setCurrentAttempt,
+  clearCurrentAttempt
 } = quizSlice.actions;
 
 export default quizSlice.reducer;

@@ -11,6 +11,8 @@ import {
 } from "./reducer";
 import { findQuizById, createQuiz, updateQuiz } from "./client";
 import { FaCalendarAlt, FaBold, FaItalic, FaUnderline, FaList, FaListOl, FaLink, FaImage } from "react-icons/fa";
+import QuestionList from "./QuestionList";
+import QuestionEditor from "./QuestionEditor";
 import "./QuizEditor.css";
 
 const QuizEditor = () => {
@@ -50,6 +52,8 @@ const QuizEditor = () => {
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>("details");
+  const [currentQuestion, setCurrentQuestion] = useState<any>(null);
+  const [isEditingQuestion, setIsEditingQuestion] = useState<boolean>(false);
 
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -153,8 +157,96 @@ const QuizEditor = () => {
   const handleTabChange = (key: string | null) => {
     if (key) {
       setActiveTab(key);
+      setIsEditingQuestion(false); // Reset question editing state when switching tabs
+      setCurrentQuestion(null);
     }
   };
+
+  // Question management functions
+  const handleAddQuestion = () => {
+    const newQuestion = {
+      id: `q${Date.now()}`, // Generate a temporary ID
+      title: "",
+      questionType: "multiple_choice",
+      questionText: "",
+      points: 1,
+      choices: [
+        { id: "1", text: "", isCorrect: true },
+        { id: "2", text: "", isCorrect: false },
+        { id: "3", text: "", isCorrect: false },
+      ],
+      correctAnswer: true, // For true/false questions
+      blankAnswers: [{ id: "1", text: "" }], // For fill in the blank questions
+    };
+    
+    setCurrentQuestion(newQuestion);
+    setIsEditingQuestion(true);
+  };
+
+  const handleEditQuestion = (questionId: string) => {
+    const questionToEdit = formData.questions.find((q: any) => q.id === questionId);
+    if (questionToEdit) {
+      setCurrentQuestion(questionToEdit);
+      setIsEditingQuestion(true);
+    }
+  };
+
+  const handleDeleteQuestion = (questionId: string) => {
+    const updatedQuestions = formData.questions.filter((q: any) => q.id !== questionId);
+    
+    // Update total points calculation
+    const totalPoints = updatedQuestions.reduce((sum: number, q: any) => sum + (q.points || 0), 0);
+    
+    setFormData({
+      ...formData,
+      questions: updatedQuestions,
+      points: totalPoints
+    });
+  };
+
+  const handleSaveQuestion = (question: any) => {
+    let updatedQuestions;
+    const existingIndex = formData.questions.findIndex((q: any) => q.id === question.id);
+    
+    if (existingIndex >= 0) {
+      // Update existing question
+      updatedQuestions = [...formData.questions];
+      updatedQuestions[existingIndex] = question;
+    } else {
+      // Add new question
+      updatedQuestions = [...formData.questions, question];
+    }
+    
+    // Update total points calculation
+    const totalPoints = updatedQuestions.reduce((sum: number, q: any) => sum + (q.points || 0), 0);
+    
+    setFormData({
+      ...formData,
+      questions: updatedQuestions,
+      points: totalPoints
+    });
+    
+    setIsEditingQuestion(false);
+    setCurrentQuestion(null);
+  };
+
+  const handleCancelQuestion = () => {
+    setIsEditingQuestion(false);
+    setCurrentQuestion(null);
+  };
+
+  // Calculate total quiz points from questions
+  useEffect(() => {
+    if (formData.questions && formData.questions.length > 0) {
+      const totalPoints = formData.questions.reduce((sum: number, q: any) => sum + (q.points || 0), 0);
+      if (formData.points !== totalPoints) {
+        setFormData((prev: any) => ({
+          ...prev,
+          points: totalPoints
+        }));
+      }
+    }
+  }, [formData.questions]);
 
   return (
     <div className="quiz-editor-container">
@@ -179,6 +271,7 @@ const QuizEditor = () => {
             onChange={handleChange}
             style={{ width: '70px' }}
             className="me-3"
+            disabled={formData.questions && formData.questions.length > 0}
           />
           <span className="me-2">
             {formData.published ? "Published" : "Not Published"}
@@ -253,204 +346,169 @@ const QuizEditor = () => {
                         <option value="Ungraded Survey">Ungraded Survey</option>
                       </Form.Select>
                     </Form.Group>
-                  </Col>
+                  </Col> 
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Assignment Group</Form.Label>
-                      <Form.Select
-                        name="assignmentGroup"
-                        value={formData.assignmentGroup}
-                        onChange={handleChange}
-                      >
-                        <option value="Quizzes">Quizzes</option>
-                        <option value="Exams">Exams</option>
-                        <option value="Assignments">Assignments</option>
-                        <option value="Project">Project</option>
-                      </Form.Select>
-                    </Form.Group>
-                  </Col>
-                </Row>
-                
-                <Row className="mb-3">
-                  <Col md={12}>
-                    <Form.Group>
-                      <Form.Check
-                        type="checkbox"
-                        id="shuffle-answers"
-                        label="Shuffle Answers"
-                        name="shuffleAnswers"
-                        checked={formData.shuffleAnswers}
-                        onChange={handleChange}
+                      <Form.Label>Published</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
+                        name="published"
+                        checked={formData.published || false}
+                        onChange={handleChange} 
                       />
                     </Form.Group>
                   </Col>
                 </Row>
-                
                 <Row className="mb-3">
                   <Col md={6}>
                     <Form.Group>
-                      <Form.Label>Time Limit</Form.Label>
+                      <Form.Label>Available Date</Form.Label>
                       <InputGroup>
-                        <FormControl
-                          type="number"
-                          name="timeLimit"
-                          min="0"
-                          value={formData.timeLimit}
-                          onChange={handleChange}
+                        <InputGroup.Text><FaCalendarAlt /></InputGroup.Text>
+                        <FormControl 
+                          type="datetime-local" 
+                          name="availableDate"
+                          value={formData.availableDate.slice(0, 16)} 
+                          onChange={handleChange} 
+                          required 
                         />
-                        <InputGroup.Text>Minutes</InputGroup.Text>
                       </InputGroup>
                     </Form.Group>
                   </Col>
-                </Row>
-                
-                <Row className="mb-3">
-                  <Col md={12}>
+                  <Col md={6}>
                     <Form.Group>
-                      <Form.Check
-                        type="checkbox"
-                        id="multiple-attempts"
-                        label="Allow Multiple Attempts"
+                      <Form.Label>Due Date</Form.Label>
+                      <FormControl 
+                        type="datetime-local" 
+                        name="dueDate"
+                        value={formData.dueDate.slice(0, 16)} 
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Until Date</Form.Label>
+                      <FormControl 
+                        type="datetime-local" 
+                        name="untilDate"
+                        value={formData.untilDate.slice(0, 16)} 
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Time Limit (minutes)</Form.Label>
+                      <FormControl 
+                        type="number" 
+                        name="timeLimit"
+                        min="0"
+                        value={formData.timeLimit || 20} 
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Multiple Attempts</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
                         name="multipleAttempts"
-                        checked={formData.multipleAttempts}
-                        onChange={handleChange}
+                        checked={formData.multipleAttempts || false}
+                        onChange={handleChange} 
                       />
                     </Form.Group>
-                    {formData.multipleAttempts && (
-                      <div className="conditional-field">
-                        <Form.Label>Number of attempts allowed</Form.Label>
-                        <FormControl
-                          type="number"
-                          name="attemptsAllowed"
-                          min="1"
-                          value={formData.attemptsAllowed}
-                          onChange={handleChange}
-                          style={{ maxWidth: '100px' }}
-                        />
-                      </div>
-                    )}
                   </Col>
-                </Row>
-                
-                <Row className="mb-3">
-                  <Col md={12}>
+                  <Col md={6}>
                     <Form.Group>
-                      <Form.Check
-                        type="checkbox"
-                        id="show-correct-answers"
-                        label="Show Correct Answers"
-                        name="showCorrectAnswers"
-                        checked={formData.showCorrectAnswers}
-                        onChange={handleChange}
+                      <Form.Label>Attempts Allowed</Form.Label>
+                      <FormControl 
+                        type="number" 
+                        name="attemptsAllowed"
+                        min="1"
+                        value={formData.attemptsAllowed || 1} 
+                        onChange={handleChange} 
+                        disabled={!formData.multipleAttempts}
                       />
                     </Form.Group>
                   </Col>
                 </Row>
-                
                 <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Shuffle Answers</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
+                        name="shuffleAnswers"
+                        checked={formData.shuffleAnswers || false}
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Show Correct Answers</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
+                        name="showCorrectAnswers"
+                        checked={formData.showCorrectAnswers || false}
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>One Question at a Time</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
+                        name="oneQuestionAtATime"
+                        checked={formData.oneQuestionAtATime || false}
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Lock Questions After Answering</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
+                        name="lockQuestionsAfterAnswering"
+                        checked={formData.lockQuestionsAfterAnswering || false}
+                        onChange={handleChange}
+                        disabled={!formData.oneQuestionAtATime} 
+                      />
+                    </Form.Group>
+                  </Col>
+                </Row>
+                <Row className="mb-3">
+                  <Col md={6}>
+                    <Form.Group>
+                      <Form.Label>Require Webcam</Form.Label>
+                      <Form.Check 
+                        type="checkbox" 
+                        name="webcamRequired"
+                        checked={formData.webcamRequired || false}
+                        onChange={handleChange} 
+                      />
+                    </Form.Group>
+                  </Col>
                   <Col md={6}>
                     <Form.Group>
                       <Form.Label>Access Code (Optional)</Form.Label>
-                      <FormControl
-                        type="text"
+                      <FormControl 
+                        type="text" 
                         name="accessCode"
-                        value={formData.accessCode || ''}
+                        value={formData.accessCode || ''} 
                         onChange={handleChange}
-                        placeholder="Leave blank for no access code"
+                        placeholder="Leave blank for no access code" 
                       />
-                    </Form.Group>
-                  </Col>
-                </Row>
-                
-                <Row className="mb-3">
-                  <Col md={12}>
-                    <Form.Group>
-                      <Form.Check
-                        type="checkbox"
-                        id="one-question-at-a-time"
-                        label="One Question at a Time"
-                        name="oneQuestionAtATime"
-                        checked={formData.oneQuestionAtATime}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                    {formData.oneQuestionAtATime && (
-                      <div className="conditional-field">
-                        <Form.Check
-                          type="checkbox"
-                          id="lock-questions-after-answering"
-                          label="Lock Questions After Answering"
-                          name="lockQuestionsAfterAnswering"
-                          checked={formData.lockQuestionsAfterAnswering}
-                          onChange={handleChange}
-                        />
-                      </div>
-                    )}
-                  </Col>
-                </Row>
-                
-                <Row className="mb-3">
-                  <Col md={12}>
-                    <Form.Group>
-                      <Form.Check
-                        type="checkbox"
-                        id="webcam-required"
-                        label="Require Webcam"
-                        name="webcamRequired"
-                        checked={formData.webcamRequired}
-                        onChange={handleChange}
-                      />
-                    </Form.Group>
-                  </Col>
-                </Row>
-              </div>
-              
-              <div className="options-section">
-                <h4 className="options-section-title">Assign</h4>
-                <Row className="mb-4">
-                  <Col md={12}>
-                    <Form.Group>
-                      <Form.Label>Due Date</Form.Label>
-                      <div className="date-input-group">
-                        <FormControl
-                          type="datetime-local"
-                          name="dueDate"
-                          value={formData.dueDate ? formData.dueDate.slice(0, 16) : ''}
-                          onChange={handleChange}
-                        />
-                        <span className="calendar-icon"><FaCalendarAlt /></span>
-                      </div>
-                    </Form.Group>
-                  </Col>
-                </Row>
-                
-                <Row className="mb-3">
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label>Available From</Form.Label>
-                      <div className="date-input-group">
-                        <FormControl
-                          type="datetime-local"
-                          name="availableDate"
-                          value={formData.availableDate ? formData.availableDate.slice(0, 16) : ''}
-                          onChange={handleChange}
-                        />
-                        <span className="calendar-icon"><FaCalendarAlt /></span>
-                      </div>
-                    </Form.Group>
-                  </Col>
-                  <Col md={6}>
-                    <Form.Group>
-                      <Form.Label>Available Until</Form.Label>
-                      <div className="date-input-group">
-                        <FormControl
-                          type="datetime-local"
-                          name="untilDate"
-                          value={formData.untilDate ? formData.untilDate.slice(0, 16) : ''}
-                          onChange={handleChange}
-                        />
-                        <span className="calendar-icon"><FaCalendarAlt /></span>
-                      </div>
                     </Form.Group>
                   </Col>
                 </Row>
@@ -482,26 +540,20 @@ const QuizEditor = () => {
           </Tab.Pane>
           
           <Tab.Pane eventKey="questions">
-            <div className="p-4 text-center">
-              <h4>Quiz Questions Editor</h4>
-              <p className="text-muted">
-                This tab would allow you to add and edit questions for this quiz. <br />
-                Click "Details" tab to return to quiz settings.
-              </p>
-              <div className="d-flex justify-content-center mt-4">
-                <Button variant="primary">Add New Question</Button>
-              </div>
-
-              {formData.questions.length === 0 ? (
-                <div className="alert alert-secondary mt-4">
-                  No questions added yet. Click the button above to add your first question.
-                </div>
-              ) : (
-                <div className="mt-4">
-                  <p>{formData.questions.length} questions in this quiz</p>
-                </div>
-              )}
-            </div>
+            {isEditingQuestion ? (
+              <QuestionEditor
+                question={currentQuestion}
+                onSave={handleSaveQuestion}
+                onCancel={handleCancelQuestion}
+              />
+            ) : (
+              <QuestionList
+                questions={formData.questions || []}
+                onEdit={handleEditQuestion}
+                onDelete={handleDeleteQuestion}
+                onAdd={handleAddQuestion}
+              />
+            )}
           </Tab.Pane>
         </Tab.Content>
       </Tab.Container>

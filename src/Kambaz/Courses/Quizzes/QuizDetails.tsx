@@ -9,7 +9,7 @@ import { findQuizById } from "./client";
 import { fetchQuizStart, fetchQuizSuccess, fetchQuizFailure } from "./reducer";
 import "./QuizDetails.css";
 
-// Define roles that have editing permissions
+// Define roles 
 const EDITOR_ROLES = ['FACULTY', 'ADMIN', 'TA'];
 
 const QuizDetails: React.FC = () => {

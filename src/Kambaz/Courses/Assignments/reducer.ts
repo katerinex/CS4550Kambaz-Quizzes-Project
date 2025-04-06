@@ -1,4 +1,5 @@
 // src/Kambaz/Courses/Assignments/reducer.ts
+
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface Assignment {
@@ -44,6 +45,14 @@ const assignmentsSlice = createSlice({
     setAssignments: (state, action: PayloadAction<Assignment[]>) => {
       state.assignments = action.payload;
     },
+    togglePublishStatus: (state, action: PayloadAction<string>) => {
+      const index = state.assignments.findIndex(
+        (assignment) => assignment._id === action.payload
+      );
+      if (index !== -1) {
+        state.assignments[index].published = !state.assignments[index].published;
+      }
+    },
   },
 });
 
@@ -52,6 +61,7 @@ export const {
   deleteAssignment,
   updateAssignment,
   setAssignments,
+  togglePublishStatus,
 } = assignmentsSlice.actions;
 
 export default assignmentsSlice.reducer;

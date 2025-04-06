@@ -1,4 +1,5 @@
 // src/Kambaz/Courses/Assignments/index.tsx
+
 import { useState, useEffect } from "react";
 import { 
   FaEdit, 
@@ -56,6 +57,8 @@ export default function Assignments(props: AssignmentsProps) {
   const [assignmentDueDate, setAssignmentDueDate] = useState("");
   const [assignmentPoints, setAssignmentPoints] = useState<number>(0);
   const [assignmentPublished, setAssignmentPublished] = useState(false);
+  const [assignmentAvailableFrom, setAssignmentAvailableFrom] = useState("");
+  const [assignmentAvailableUntil, setAssignmentAvailableUntil] = useState("");
   
   // Get current user from Redux store
   const { user } = useSelector((state: any) => state.accountReducer);
@@ -98,6 +101,8 @@ export default function Assignments(props: AssignmentsProps) {
       setAssignmentDueDate(assignment.dueDate || "");
       setAssignmentPoints(assignment.points || 0);
       setAssignmentPublished(assignment.published || false);
+      setAssignmentAvailableFrom(assignment.availableFromDate || "");
+      setAssignmentAvailableUntil(assignment.availableUntilDate || "");
     } else {
       setCurrentAssignment(null);
       setAssignmentName("");
@@ -105,6 +110,8 @@ export default function Assignments(props: AssignmentsProps) {
       setAssignmentDueDate("");
       setAssignmentPoints(0);
       setAssignmentPublished(false);
+      setAssignmentAvailableFrom("");
+      setAssignmentAvailableUntil("");
     }
     setShowModal(true);
   };
@@ -128,15 +135,15 @@ export default function Assignments(props: AssignmentsProps) {
         dueDate: assignmentDueDate,
         points: assignmentPoints,
         published: assignmentPublished,
+        availableFromDate: assignmentAvailableFrom,
+        availableUntilDate: assignmentAvailableUntil
       };
       
       if (currentAssignment) {
         // Update existing assignment
         const updatedAssignment = {
           ...assignmentData, 
-          _id: currentAssignment._id,
-          availableFromDate: currentAssignment.availableFromDate,
-          availableUntilDate: currentAssignment.availableUntilDate
+          _id: currentAssignment._id
         };
         await assignmentsClient.updateAssignment(updatedAssignment);
         dispatch(updateAssignment(updatedAssignment));
@@ -150,6 +157,9 @@ export default function Assignments(props: AssignmentsProps) {
       }
       
       setShowModal(false);
+      
+      // Refresh assignments to ensure we have the latest data
+      await fetchAssignments();
     } catch (error) {
       console.error("Error saving assignment:", error);
       setError("Failed to save assignment. Please try again.");
@@ -163,6 +173,36 @@ export default function Assignments(props: AssignmentsProps) {
     } catch (error) {
       console.error("Error deleting assignment:", error);
       setError("Failed to delete assignment. Please try again.");
+    }
+  };
+  
+  const handleTogglePublish = async (assignment: Assignment) => {
+    try {
+      setError(null);
+      const newPublishedStatus = !assignment.published;
+      
+      console.log(`Toggling assignment ${assignment._id} published to ${newPublishedStatus}`);
+      
+      // Create the updated assignment object
+      const updatedAssignment = { 
+        ...assignment, 
+        published: newPublishedStatus 
+      };
+      
+      // Update in the database
+      await assignmentsClient.updateAssignment(updatedAssignment);
+      
+      // Update in Redux after successful database update
+      dispatch(updateAssignment({ 
+        ...updatedAssignment,
+        published: newPublishedStatus  // Ensure the published status is set correctly
+      }));
+      
+      // Verify the change by re-fetching assignments
+      await fetchAssignments();
+    } catch (error) {
+      console.error("Error toggling publish status:", error);
+      setError("Failed to update assignment publish status. Please try again.");
     }
   };
 
@@ -250,7 +290,7 @@ export default function Assignments(props: AssignmentsProps) {
                     <div className="d-flex align-items-center">
                       <FaFileAlt className="me-2 text-danger" />
                       <h6 className="mb-0">{assignment.title}</h6>
-                      {assignment.published && isFaculty && (
+                      {assignment.published && (
                         <FaCheck className="text-success ms-2" />
                       )}
                     </div>
@@ -274,6 +314,14 @@ export default function Assignments(props: AssignmentsProps) {
                   
                   {isFaculty && (
                     <div className="d-flex">
+                      <Button 
+                        variant={assignment.published ? "outline-success" : "outline-secondary"}
+                        className="btn-sm me-2"
+                        onClick={() => handleTogglePublish(assignment)}
+                        title={assignment.published ? "Unpublish" : "Publish"}
+                      >
+                        <FaCheck />
+                      </Button>
                       <Button 
                         variant="outline-primary" 
                         className="btn-sm me-2"
@@ -352,12 +400,33 @@ export default function Assignments(props: AssignmentsProps) {
             </Form.Group>
             
             <Form.Group className="mb-3">
+              <Form.Label>Available From</Form.Label>
+              <Form.Control
+                type="datetime-local"
+                value={assignmentAvailableFrom}
+                onChange={(e) => setAssignmentAvailableFrom(e.target.value)}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
+              <Form.Label>Available Until</Form.Label>
+              <Form.Control
+                type="datetime-local"
+                value={assignmentAvailableUntil}
+                onChange={(e) => setAssignmentAvailableUntil(e.target.value)}
+              />
+            </Form.Group>
+            
+            <Form.Group className="mb-3">
               <Form.Check
                 type="checkbox"
-                label="Published"
+                label="Published (visible to students)"
                 checked={assignmentPublished}
                 onChange={(e) => setAssignmentPublished(e.target.checked)}
               />
+              <Form.Text className="text-muted">
+                Students can only see assignments that are published.
+              </Form.Text>
             </Form.Group>
           </Form>
         </Modal.Body>

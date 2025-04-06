@@ -19,7 +19,7 @@ import {
 } from "./reducer";
 import "./QuizList.css";
 
-// Define roles that have editing permissions
+// Define roles 
 const EDITOR_ROLES = ['FACULTY', 'ADMIN', 'TA'];
 
 const QuizList: React.FC = () => {

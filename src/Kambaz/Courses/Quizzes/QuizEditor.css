@@ -1,190 +1,161 @@
-/* QuizEditor.css */
-
+/* src/Kambaz/Courses/Quizzes/QuizEditor.css */
 .quiz-editor-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 1.5rem;
-  }
-  
-  .quiz-editor-header {
-    display: flex;
-    align-items: center;
-    margin-bottom: 1rem;
-    font-size: 0.9rem;
-    color: #555;
-  }
-  
-  .quiz-editor-header span {
-    margin-right: 0.5rem;
-  }
-  
-  .quiz-editor-title {
-    font-size: 1.5rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-    color: #333;
-  }
-  
-  /* Tabs styling */
-  .quiz-editor-tabs {
-    border-bottom: 1px solid #dee2e6;
-    margin-bottom: 1.5rem;
-  }
-  
-  .quiz-editor-tabs .nav-link {
-    color: #555;
-    background-color: transparent;
-    border: none;
-    border-bottom: 3px solid transparent;
-    padding: 0.75rem 1rem;
-    font-weight: 500;
-  }
-  
-  .quiz-editor-tabs .nav-link.active {
-    color: #0374B5; /* Canvas blue */
-    border-bottom-color: #0374B5;
-    background-color: transparent;
-  }
-  
-  .quiz-editor-tabs .nav-link:hover:not(.active) {
-    border-bottom-color: #dee2e6;
-  }
-  
-  /* Form styling */
-  .quiz-editor-form .form-label {
-    font-weight: 500;
-    color: #333;
-  }
-  
-  .quiz-editor-form .form-control,
-  .quiz-editor-form .form-select {
-    border-color: #ced4da;
-    padding: 0.5rem 0.75rem;
-  }
-  
-  .quiz-editor-form .form-control:focus,
-  .quiz-editor-form .form-select:focus {
-    border-color: #80bdff;
-    box-shadow: 0 0 0 0.25rem rgba(3, 116, 181, 0.25);
-  }
-  
-  /* Description editor styling */
-  .description-editor {
-    border: 1px solid #ced4da;
-    border-radius: 0.25rem;
-    margin-top: 0.5rem;
-  }
-  
-  .editor-toolbar {
-    border-bottom: 1px solid #ced4da;
-    padding: 0.5rem;
-    background-color: #f8f9fa;
-  }
-  
-  .editor-toolbar button {
-    background: none;
-    border: none;
-    padding: 0.25rem 0.5rem;
-    margin-right: 0.25rem;
-    color: #555;
-    cursor: pointer;
-    border-radius: 0.25rem;
-  }
-  
-  .editor-toolbar button:hover {
-    background-color: #e9ecef;
-  }
-  
-  .editor-content {
-    min-height: 150px;
-    padding: 1rem;
-  }
-  
-  /* Input groups */
-  .input-group-text {
-    background-color: #e9ecef;
-    color: #555;
-  }
-  
-  /* Checkbox styling */
-  .form-check .form-check-input {
-    margin-top: 0.3rem;
-  }
-  
-  .form-check .form-check-label {
-    margin-left: 0.5rem;
-  }
-  
-  /* Date inputs */
-  .date-input-group {
-    position: relative;
-  }
-  
-  .date-input-group .calendar-icon {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #6c757d;
-    z-index: 4;
-    pointer-events: none;
-  }
-  
-  /* Options section */
-  .options-section {
-    margin-top: 2rem;
-    margin-bottom: 2rem;
-  }
-  
-  .options-section-title {
-    font-weight: 500;
-    color: #333;
-    margin-bottom: 1rem;
-  }
-  
-  /* Action buttons */
-  .quiz-editor-actions {
-    margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid #dee2e6;
-    display: flex;
-    justify-content: flex-end;
-    gap: 0.5rem;
-  }
-  
-  .quiz-editor-actions .btn-secondary {
-    background-color: #f8f9fa;
-    color: #333;
-    border-color: #ced4da;
-  }
-  
-  .quiz-editor-actions .btn-primary {
-    background-color: #0374B5; /* Canvas blue */
-    border-color: #0374B5;
-  }
-  
-  .quiz-editor-actions .btn-success {
-    background-color: #2d7b43; /* Canvas green */
-    border-color: #2d7b43;
-  }
-  
-  /* Conditional fields */
-  .conditional-field {
-    margin-left: 1.5rem;
-    margin-top: 0.75rem;
-    padding-top: 0.75rem;
-    border-top: 1px solid #f0f0f0;
-  }
-  
-  /* Section dividers */
-  .section-divider {
-    margin: 1.5rem 0;
-    border-top: 1px solid #eee;
-  }
-  
-  .sidebar-placeholder {
-    background-color: #f8f9fa;
-    border-left: 1px solid #dee2e6;
-    padding: 1rem;
-    height: 100%;
-  }
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 0.3rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-editor-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.quiz-editor-header span {
+  margin: 0 0.5rem;
+}
+
+.quiz-editor-header a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.quiz-editor-header a:hover {
+  text-decoration: underline;
+}
+
+.quiz-editor-title {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.quiz-editor-tabs {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-link {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: #495057;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  border-bottom-color: #ced4da;
+}
+
+.nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background-color: transparent;
+}
+
+.quiz-editor-form {
+  max-width: 100%;
+}
+
+.options-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.3rem;
+}
+
+.options-section-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.conditional-field {
+  margin-top: 0.5rem;
+  margin-left: 1.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.description-editor {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ced4da;
+  padding: 0.5rem;
+}
+
+.editor-toolbar button {
+  background: none;
+  border: none;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.editor-toolbar button:hover {
+  background-color: #e9ecef;
+}
+
+.editor-content {
+  padding: 0.75rem;
+  min-height: 120px;
+}
+
+.date-input-group {
+  position: relative;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.quiz-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* For questions and answers styling */
+.question-container {
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.question-header {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-body {
+  padding: 1.5rem;
+}
+
+.question-actions {
+  display: flex;
+  gap: 0.5rem;
+}
