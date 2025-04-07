@@ -1,12 +1,28 @@
 // src/Kambaz/Account/client.ts
 import axios from "axios";
 
-// Safe access to environment variables with fallbacks
+// Safe access to environment variables with better fallbacks
 const getRemoteServer = () => {
   // First check for explicit environment variable
   if (import.meta.env.VITE_REMOTE_SERVER) {
     return import.meta.env.VITE_REMOTE_SERVER;
   }
+  
+  // For production builds, use window.location-based fallback
+  if (import.meta.env.PROD) {
+    // Extract origin from current URL for same-origin API calls in production
+    // This helps when deployed without explicit env vars
+    const isLocalHost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1';
+    
+    if (!isLocalHost) {
+      // Check if we're on Netlify pointing to Render
+      if (window.location.hostname.includes('netlify')) {
+        return 'https://kambaz-node-server-app-9l9f.onrender.com';
+      }
+    }
+  }
+  
   // Default to localhost in development
   return 'http://localhost:4000';
 };
@@ -18,8 +34,56 @@ console.log("API server URL:", REMOTE_SERVER);
 const axiosWithCredentials = axios.create({
   withCredentials: true,
   baseURL: REMOTE_SERVER,
-  timeout: 15000 // Increased timeout to 15 seconds
+  timeout: 15000, // Increased timeout to 15 seconds
+  headers: {
+    'Content-Type': 'application/json'
+  }
 });
+
+// Add request/response interceptors for debugging
+axiosWithCredentials.interceptors.request.use(
+  config => {
+    console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    return config;
+  },
+  error => {
+    console.error('Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+axiosWithCredentials.interceptors.response.use(
+  response => {
+    console.log(`API Response: ${response.status} from ${response.config.url}`);
+    return response;
+  },
+  error => {
+    if (error.response) {
+      console.error(`API Error ${error.response.status}: ${error.response.data?.message || 'Unknown error'}`);
+    } else if (error.request) {
+      console.error('No response received from server');
+    } else {
+      console.error('Request configuration error:', error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
+// Add authentication check endpoint
+export const checkAuth = async () => {
+  try {
+    console.log("Checking authentication status...");
+    const response = await axiosWithCredentials.get(`${REMOTE_SERVER}/api/users/profile`);
+    return { isAuthenticated: true, user: response.data };
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 401) {
+      console.log("User is not authenticated");
+      return { isAuthenticated: false, user: null };
+    }
+    console.error("Auth check failed:", error);
+    throw error;
+  }
+};
 
 export const USERS_API = `${REMOTE_SERVER}/api/users`;
 
@@ -167,25 +231,20 @@ export const findCoursesForUser = async (userId: string) => {
     console.error("findCoursesForUser called with no userId");
     throw new Error("User ID is required");
   }
-  
   console.log(`Fetching courses for user ${userId}`);
-  
   try {
     const response = await axiosWithCredentials.get(`${USERS_API}/${userId}/courses`);
     console.log(`Found ${response.data?.length || 0} courses for user ${userId}`);
-    
     // Validate the response
     if (!response.data) {
       console.warn("Empty response from courses endpoint");
       return [];
     }
-    
     // If we got a non-array response, log it but return an empty array
     if (!Array.isArray(response.data)) {
       console.error("Expected array but got:", typeof response.data, response.data);
       return [];
     }
-    
     return response.data;
   } catch (error) {
     console.error(`Find courses for user "${userId}" failed:`, error);
@@ -199,9 +258,7 @@ export const enrollIntoCourse = async (userId: string, courseId: string) => {
     console.error(`Invalid parameters for enrollment - userId: ${userId}, courseId: ${courseId}`);
     throw new Error("Both valid user ID and course ID are required for enrollment");
   }
-  
   console.log(`Enrolling user ${userId} in course ${courseId}`);
-  
   try {
     const response = await axiosWithCredentials.post(`${USERS_API}/${userId}/courses/${courseId}`);
     console.log("Enrollment response:", response.data);
@@ -218,9 +275,7 @@ export const unenrollFromCourse = async (userId: string, courseId: string) => {
     console.error(`Invalid parameters for unenrollment - userId: ${userId}, courseId: ${courseId}`);
     throw new Error("Both user ID and course ID are required for unenrollment");
   }
-  
   console.log(`Unenrolling user ${userId} from course ${courseId}`);
-  
   try {
     const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}/courses/${courseId}`);
     console.log("Unenrollment response:", response.status);
