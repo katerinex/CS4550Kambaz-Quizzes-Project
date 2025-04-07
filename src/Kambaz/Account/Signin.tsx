@@ -46,8 +46,17 @@ export default function Signin() {
         throw new Error("Cannot connect to server. Please ensure the backend is running.");
       }
 
-      // Now attempt actual signin
-      const user = await client.signin(credentials);
+      let user;
+
+      // First try normal session-based authentication
+      try {
+        console.log("Attempting session-based authentication...");
+        user = await client.signin(credentials);
+      } catch (sessionError) {
+        console.log("Session authentication failed, trying token authentication...");
+        // If that fails, try token-based authentication
+        user = await client.tokenSignin(credentials);
+      }
       
       if (user) {
         dispatch(setCurrentUser(user));

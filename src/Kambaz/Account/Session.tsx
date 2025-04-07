@@ -10,11 +10,20 @@ export default function Session({ children }: { children: any }) {
   
   const fetchProfile = async () => {
     try {
-      const currentUser = await client.profile();
-      dispatch(setCurrentUser(currentUser));
+      // Use the enhanced checkAuth function that tries both methods
+      const { isAuthenticated, user } = await client.checkAuth();
+      
+      if (isAuthenticated && user) {
+        console.log("Authentication successful, user:", user.username);
+        dispatch(setCurrentUser(user));
+      } else {
+        console.log("No authenticated user found");
+        dispatch(setCurrentUser(null));
+      }
     } catch (err: any) {
       // Don't set current user if there's an error
-      console.log("Not logged in or session expired");
+      console.log("Authentication check failed:", err.message || err);
+      dispatch(setCurrentUser(null));
     } finally {
       setPending(false);
     }

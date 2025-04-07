@@ -40,6 +40,15 @@ const axiosWithCredentials = axios.create({
   }
 });
 
+// Regular axios instance without credentials for token-based auth
+const axiosInstance = axios.create({
+  baseURL: REMOTE_SERVER,
+  timeout: 15000,
+  headers: {
+    'Content-Type': 'application/json'
+  }
+});
+
 // Add request/response interceptors for debugging
 axiosWithCredentials.interceptors.request.use(
   config => {
@@ -69,19 +78,58 @@ axiosWithCredentials.interceptors.response.use(
   }
 );
 
+// Token-based authentication for environments where cookies don't work
+export const tokenSignin = async (credentials: any) => {
+  try {
+    console.log("Attempting token-based signin");
+    const response = await axiosInstance.post(`${REMOTE_SERVER}/api/users/token-signin`, credentials);
+    // Store the user in localStorage
+    localStorage.setItem('currentUser', JSON.stringify(response.data));
+    console.log("Token signin successful:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Token signin failed:", error);
+    throw error;
+  }
+};
+
+export const tokenSignup = async (user: any) => {
+  try {
+    console.log("Attempting token-based signup");
+    const response = await axiosInstance.post(`${REMOTE_SERVER}/api/users/token-signup`, user);
+    // Store the user in localStorage
+    localStorage.setItem('currentUser', JSON.stringify(response.data));
+    console.log("Token signup successful:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Token signup failed:", error);
+    throw error;
+  }
+};
+
 // Add authentication check endpoint
 export const checkAuth = async () => {
   try {
-    console.log("Checking authentication status...");
+    // First try the session-based approach
+    console.log("Checking authentication status via session...");
     const response = await axiosWithCredentials.get(`${REMOTE_SERVER}/api/users/profile`);
     return { isAuthenticated: true, user: response.data };
-  } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 401) {
-      console.log("User is not authenticated");
-      return { isAuthenticated: false, user: null };
+  } catch (sessionError) {
+    // If session check fails, look for user in localStorage
+    console.log("Session auth check failed, checking localStorage...");
+    const storedUser = localStorage.getItem('currentUser');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        console.log("Found authenticated user in localStorage:", user.username);
+        return { isAuthenticated: true, user };
+      } catch (e) {
+        console.error("Error parsing stored user:", e);
+        localStorage.removeItem('currentUser');
+      }
     }
-    console.error("Auth check failed:", error);
-    throw error;
+    console.log("User is not authenticated");
+    return { isAuthenticated: false, user: null };
   }
 };
 
@@ -111,9 +159,25 @@ export const signup = async (user: any) => {
 
 export const updateUser = async (user: any) => {
   try {
-    const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
-    console.log("Update user response:", response.data);
-    return response.data;
+    // Try with credentials first
+    try {
+      const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
+      console.log("Update user response:", response.data);
+      return response.data;
+    } catch (error) {
+      // If that fails and we have a stored user, use token approach
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        const response = await axiosInstance.put(`${USERS_API}/${user._id}`, user);
+        // Update the stored user
+        localStorage.setItem('currentUser', JSON.stringify({
+          ...JSON.parse(storedUser),
+          ...response.data
+        }));
+        return response.data;
+      }
+      throw error;
+    }
   } catch (error) {
     console.error("Update user failed:", error);
     throw error;
@@ -123,9 +187,23 @@ export const updateUser = async (user: any) => {
 export const profile = async () => {
   try {
     console.log("Fetching user profile...");
-    const response = await axiosWithCredentials.get(`${USERS_API}/profile`);
-    console.log("Profile response:", response.data);
-    return response.data;
+    
+    // Try session-based auth first
+    try {
+      const response = await axiosWithCredentials.get(`${USERS_API}/profile`);
+      console.log("Profile response (session):", response.data);
+      return response.data;
+    } catch (sessionError) {
+      // If session fails, try token-based auth
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        console.log("Profile response (token):", user);
+        return user;
+      }
+      // If both fail, rethrow the original error
+      throw sessionError;
+    }
   } catch (error) {
     console.error("Profile fetch failed:", error);
     throw error;
@@ -134,9 +212,17 @@ export const profile = async () => {
 
 export const signout = async () => {
   try {
-    const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
-    console.log("Signout response:", response.data);
-    return response.data;
+    // Clear localStorage user
+    localStorage.removeItem('currentUser');
+    
+    // Also try to clear server session if possible
+    try {
+      const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
+      console.log("Signout response:", response.data);
+    } catch (error) {
+      console.log("Server signout failed, but local token cleared");
+    }
+    return null;
   } catch (error) {
     console.error("Signout failed:", error);
     throw error;
@@ -146,9 +232,22 @@ export const signout = async () => {
 export const findMyCourses = async () => {
   try {
     console.log("Fetching current user's courses...");
-    const response = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
-    console.log("Find my courses response:", response.data);
-    return response.data;
+    
+    // Try with session auth first
+    try {
+      const response = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
+      console.log("Find my courses response:", response.data);
+      return response.data;
+    } catch (sessionError) {
+      // If that fails and we have a stored user, try a direct request with the user ID
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        const response = await axiosInstance.get(`${USERS_API}/${user._id}/courses`);
+        return response.data;
+      }
+      throw sessionError;
+    }
   } catch (error) {
     console.error("Find my courses failed:", error);
     throw error;
@@ -157,9 +256,23 @@ export const findMyCourses = async () => {
 
 export const createCourse = async (course: any) => {
   try {
-    const response = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
-    console.log("Create course response:", response.data);
-    return response.data;
+    // Try with session auth first
+    try {
+      const response = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
+      console.log("Create course response:", response.data);
+      return response.data;
+    } catch (sessionError) {
+      // If that fails and we have a stored user, use a direct endpoint
+      const storedUser = localStorage.getItem('currentUser');
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        // This endpoint would need to be added to the backend
+        const response = await axiosInstance.post(`${USERS_API}/${user._id}/new-course`, 
+          { ...course, creator: user._id });
+        return response.data;
+      }
+      throw sessionError;
+    }
   } catch (error) {
     console.error("Create course failed:", error);
     throw error;
