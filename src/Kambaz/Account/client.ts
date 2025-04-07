@@ -5,6 +5,7 @@ import axios from "axios";
 const getRemoteServer = () => {
   // First check for explicit environment variable
   if (import.meta.env.VITE_REMOTE_SERVER) {
+    console.log("Using VITE_REMOTE_SERVER:", import.meta.env.VITE_REMOTE_SERVER);
     return import.meta.env.VITE_REMOTE_SERVER;
   }
   
@@ -15,20 +16,30 @@ const getRemoteServer = () => {
     const isLocalHost = window.location.hostname === 'localhost' || 
                         window.location.hostname === '127.0.0.1';
     
+    console.log("Hostname:", window.location.hostname);
+    console.log("Is Netlify site:", window.location.hostname.includes('netlify'));
+    
     if (!isLocalHost) {
       // Check if we're on Netlify pointing to Render
       if (window.location.hostname.includes('netlify')) {
+        console.log("Detected Netlify host, using hardcoded Render URL");
         return 'https://kambaz-node-server-app-9l9f.onrender.com';
       }
     }
   }
   
   // Default to localhost in development
+  console.log("Using default localhost API URL");
   return 'http://localhost:4000';
 };
 
 const REMOTE_SERVER = getRemoteServer();
 console.log("API server URL:", REMOTE_SERVER);
+
+// Define consistent API URL constants
+export const API_BASE = `${REMOTE_SERVER}/api`;
+export const USERS_API = `${API_BASE}/users`;
+export const COURSES_API = `${API_BASE}/courses`;
 
 // Configure axios with better defaults
 const axiosWithCredentials = axios.create({
@@ -83,19 +94,30 @@ axiosInstance.interceptors.request.use(
   config => {
     // If we have a user in localStorage, add their ID as an auth header
     const storedUser = localStorage.getItem('currentUser');
+    console.log("Interceptor: currentUser in localStorage:", !!storedUser);
+    
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        console.log("Parsed user from localStorage:", user);
+        
         if (user && user._id) {
           config.headers = {
             ...config.headers,
             'X-User-Id': user._id
-          } as any; // Type assertion to fix TypeScript error
+          } as any;
+          console.log("Added X-User-Id header:", user._id);
+        } else {
+          console.warn("User object doesn't have _id property:", user);
         }
       } catch (e) {
         console.error("Error parsing stored user for auth header:", e);
       }
+    } else {
+      console.warn("No user found in localStorage for request:", config.url);
     }
+    
+    console.log("Final request headers:", config.headers);
     return config;
   },
   error => {
@@ -106,37 +128,52 @@ axiosInstance.interceptors.request.use(
 // Token validation helper
 export const validateToken = async () => {
   const storedUser = localStorage.getItem('currentUser');
-  if (!storedUser) return false;
+  if (!storedUser) {
+    console.warn("No user found in localStorage during token validation");
+    return false;
+  }
   
   try {
     const user = JSON.parse(storedUser);
+    console.log("Validating token for user:", user);
+    
+    if (!user._id) {
+      console.error("User object has no _id property:", user);
+      localStorage.removeItem('currentUser');
+      return false;
+    }
+    
     // Make a lightweight request to verify the token is still accepted
-    await axiosInstance.get(`${REMOTE_SERVER}/api/auth-status`, {
+    const response = await axiosInstance.get(`${API_BASE}/auth-status`, {
       headers: { 
         'X-User-Id': user._id 
-      } as any // Type assertion to fix TypeScript error
+      } as any
     });
+    
+    console.log("Token validation response:", response.data);
     return true;
   } catch (error) {
-    console.error("Token validation failed, clearing stored user");
+    console.error("Token validation failed, clearing stored user:", error);
     localStorage.removeItem('currentUser');
     return false;
   }
 };
 
-export const USERS_API = `${REMOTE_SERVER}/api/users`;
-
 // Token-based authentication for environments where cookies don't work
 export const tokenSignin = async (credentials: any) => {
   try {
     console.log("Attempting token-based signin");
-    const response = await axiosInstance.post(`${REMOTE_SERVER}/api/users/token-signin`, credentials);
+    const response = await axiosInstance.post(`${USERS_API}/token-signin`, credentials);
     
     // Ensure we got valid user data before storing
     if (response.data && response.data._id) {
       // Store the user in localStorage
       localStorage.setItem('currentUser', JSON.stringify(response.data));
-      console.log("Token signin successful:", response.data);
+      console.log("Token signin successful, stored in localStorage:", response.data);
+      
+      // Verify the token was properly stored
+      const storedUser = localStorage.getItem('currentUser');
+      console.log("Verification - currentUser in localStorage:", storedUser);
       
       // Also attempt to set cookie-based session if possible (silent fail)
       try {
@@ -147,6 +184,7 @@ export const tokenSignin = async (credentials: any) => {
       
       return response.data;
     } else {
+      console.error("Invalid user data received from server:", response.data);
       throw new Error("Invalid user data received from server");
     }
   } catch (error) {
@@ -158,13 +196,17 @@ export const tokenSignin = async (credentials: any) => {
 export const tokenSignup = async (user: any) => {
   try {
     console.log("Attempting token-based signup");
-    const response = await axiosInstance.post(`${REMOTE_SERVER}/api/users/token-signup`, user);
+    const response = await axiosInstance.post(`${USERS_API}/token-signup`, user);
     
     // Ensure we got valid user data before storing
     if (response.data && response.data._id) {
       // Store the user in localStorage
       localStorage.setItem('currentUser', JSON.stringify(response.data));
-      console.log("Token signup successful:", response.data);
+      console.log("Token signup successful, stored in localStorage:", response.data);
+      
+      // Verify the token was properly stored
+      const storedUser = localStorage.getItem('currentUser');
+      console.log("Verification - currentUser in localStorage:", storedUser);
       
       // Also attempt to set cookie-based session if possible (silent fail)
       try {
@@ -175,6 +217,7 @@ export const tokenSignup = async (user: any) => {
       
       return response.data;
     } else {
+      console.error("Invalid user data received from server:", response.data);
       throw new Error("Invalid user data received from server");
     }
   } catch (error) {
@@ -196,10 +239,11 @@ export const checkAuth = async () => {
         // Validate that the token is still valid by making a lightweight request
         // This helps ensure the stored token hasn't expired or been invalidated
         try {
-          await axiosInstance.get(`${REMOTE_SERVER}/api/auth-status`);
+          const response = await axiosInstance.get(`${API_BASE}/auth-status`);
+          console.log("Auth status check response:", response.data);
           return { isAuthenticated: true, user };
         } catch (validationError) {
-          console.warn("Stored token appears invalid, removing");
+          console.warn("Stored token appears invalid, removing:", validationError);
           localStorage.removeItem('currentUser');
         }
       } catch (e) {
@@ -210,7 +254,8 @@ export const checkAuth = async () => {
     
     // Then fall back to session-based approach
     console.log("Checking authentication status via session...");
-    const response = await axiosWithCredentials.get(`${REMOTE_SERVER}/api/users/profile`);
+    const response = await axiosWithCredentials.get(`${USERS_API}/profile`);
+    console.log("Session auth response:", response.data);
     return { isAuthenticated: true, user: response.data };
   } catch (error) {
     console.log("User is not authenticated");
@@ -224,6 +269,7 @@ export const signin = async (credentials: any) => {
     try {
       return await tokenSignin(credentials);
     } catch (tokenError) {
+      console.log("Token-based auth failed, trying cookie-based:", tokenError);
       // Fall back to cookie-based auth
       const response = await axiosWithCredentials.post(`${USERS_API}/signin`, credentials);
       console.log("Signin response:", response.data);
@@ -241,6 +287,7 @@ export const signup = async (user: any) => {
     try {
       return await tokenSignup(user);
     } catch (tokenError) {
+      console.log("Token-based signup failed, trying cookie-based:", tokenError);
       // Fall back to cookie-based auth
       const response = await axiosWithCredentials.post(`${USERS_API}/signup`, user);
       console.log("Signup response:", response.data);
@@ -267,7 +314,7 @@ export const updateUser = async (user: any) => {
         console.log("Update user response (token):", response.data);
         return response.data;
       } catch (tokenError) {
-        console.log("Token-based update failed, trying session-based");
+        console.log("Token-based update failed, trying session-based:", tokenError);
       }
     }
     
@@ -293,11 +340,14 @@ export const profile = async () => {
         
         // Validate the stored user with a lightweight request
         try {
-          await validateToken();
-          console.log("Profile response (token):", user);
-          return user;
+          const validToken = await validateToken();
+          console.log("Token validation result:", validToken);
+          if (validToken) {
+            console.log("Profile response (token):", user);
+            return user;
+          }
         } catch (validationError) {
-          console.warn("Stored user validation failed, trying session auth");
+          console.warn("Stored user validation failed, trying session auth:", validationError);
         }
       } catch (e) {
         console.error("Error parsing stored user:", e);
@@ -320,13 +370,14 @@ export const signout = async () => {
     // Clear localStorage user
     const hadStoredUser = localStorage.getItem('currentUser') !== null;
     localStorage.removeItem('currentUser');
+    console.log("Cleared user from localStorage");
     
     // Also try to clear server session if possible
     try {
       const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
       console.log("Signout response:", response.data);
     } catch (error) {
-      console.log("Server signout failed, but local token cleared");
+      console.log("Server signout failed, but local token cleared:", error);
     }
     
     if (hadStoredUser) {
@@ -348,15 +399,17 @@ export const findMyCourses = async () => {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        console.log(`Making token-based request to: ${USERS_API}/${user._id}/courses`);
         const response = await axiosInstance.get(`${USERS_API}/${user._id}/courses`);
         console.log("Find my courses response (token):", response.data);
         return response.data;
       } catch (tokenError) {
-        console.log("Token-based course fetch failed, trying session-based");
+        console.log("Token-based course fetch failed, trying session-based:", tokenError);
       }
     }
     
     // Fall back to session-based auth
+    console.log(`Making session-based request to: ${USERS_API}/current/courses`);
     const response = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
     console.log("Find my courses response (session):", response.data);
     return response.data;
@@ -373,16 +426,18 @@ export const createCourse = async (course: any) => {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        console.log(`Making token-based request to: ${USERS_API}/${user._id}/new-course`);
         const response = await axiosInstance.post(`${USERS_API}/${user._id}/new-course`, 
           { ...course, creator: user._id });
         console.log("Create course response (token):", response.data);
         return response.data;
       } catch (tokenError) {
-        console.log("Token-based course creation failed, trying session-based");
+        console.log("Token-based course creation failed, trying session-based:", tokenError);
       }
     }
     
     // Fall back to session-based auth
+    console.log(`Making session-based request to: ${USERS_API}/current/courses`);
     const response = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
     console.log("Create course response (session):", response.data);
     return response.data;
@@ -399,6 +454,7 @@ export const findAllUsers = async () => {
       const response = await axiosInstance.get(USERS_API);
       return response.data;
     } catch (error) {
+      console.log("Token-based user fetch failed, trying session-based:", error);
       const response = await axiosWithCredentials.get(USERS_API);
       return response.data;
     }
@@ -415,6 +471,7 @@ export const findUsersByRole = async (role: string) => {
       const response = await axiosInstance.get(`${USERS_API}?role=${role}`);
       return response.data;
     } catch (error) {
+      console.log(`Token-based user role fetch failed for "${role}", trying session-based:`, error);
       const response = await axiosWithCredentials.get(`${USERS_API}?role=${role}`);
       return response.data;
     }
@@ -431,6 +488,7 @@ export const findUsersByPartialName = async (name: string) => {
       const response = await axiosInstance.get(`${USERS_API}?name=${name}`);
       return response.data;
     } catch (error) {
+      console.log(`Token-based user name fetch failed for "${name}", trying session-based:`, error);
       const response = await axiosWithCredentials.get(`${USERS_API}?name=${name}`);
       return response.data;
     }
@@ -447,6 +505,7 @@ export const findUserById = async (id: string) => {
       const response = await axiosInstance.get(`${USERS_API}/${id}`);
       return response.data;
     } catch (error) {
+      console.log(`Token-based user fetch failed for ID "${id}", trying session-based:`, error);
       const response = await axiosWithCredentials.get(`${USERS_API}/${id}`);
       return response.data;
     }
@@ -463,6 +522,7 @@ export const deleteUser = async (userId: string) => {
       const response = await axiosInstance.delete(`${USERS_API}/${userId}`);
       return response.data;
     } catch (error) {
+      console.log(`Token-based user deletion failed for "${userId}", trying session-based:`, error);
       const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}`);
       return response.data;
     }
@@ -479,6 +539,7 @@ export const createUser = async (user: any) => {
       const response = await axiosInstance.post(`${USERS_API}`, user);
       return response.data;
     } catch (error) {
+      console.log("Token-based user creation failed, trying session-based:", error);
       const response = await axiosWithCredentials.post(`${USERS_API}`, user);
       return response.data;
     }
@@ -494,16 +555,22 @@ export const findCoursesForUser = async (userId: string) => {
     throw new Error("User ID is required");
   }
   console.log(`Fetching courses for user ${userId}`);
+  console.log("Current localStorage:", localStorage.getItem('currentUser'));
   
   try {
-    // Try both methods
+    // Try token-based auth first
     try {
+      console.log(`Making token-based request to: ${USERS_API}/${userId}/courses`);
       const response = await axiosInstance.get(`${USERS_API}/${userId}/courses`);
-      console.log(`Found ${response.data?.length || 0} courses for user ${userId} (token)`);
+      console.log(`Found ${response.data?.length || 0} courses for user ${userId} (token)`, response);
       return validateCoursesResponse(response.data);
-    } catch (error) {
+    } catch (tokenError) {
+      console.error("Token-based request failed:", tokenError);
+      
+      // Fall back to session-based auth
+      console.log(`Making session-based request to: ${USERS_API}/${userId}/courses`);
       const response = await axiosWithCredentials.get(`${USERS_API}/${userId}/courses`);
-      console.log(`Found ${response.data?.length || 0} courses for user ${userId} (session)`);
+      console.log(`Found ${response.data?.length || 0} courses for user ${userId} (session)`, response);
       return validateCoursesResponse(response.data);
     }
   } catch (error) {
@@ -536,12 +603,17 @@ export const enrollIntoCourse = async (userId: string, courseId: string) => {
   console.log(`Enrolling user ${userId} in course ${courseId}`);
   
   try {
-    // Try both methods
+    // Try token-based auth first
     try {
+      console.log(`Making token-based request to: ${USERS_API}/${userId}/courses/${courseId}`);
       const response = await axiosInstance.post(`${USERS_API}/${userId}/courses/${courseId}`);
       console.log("Enrollment response (token):", response.data);
       return response.data;
-    } catch (error) {
+    } catch (tokenError) {
+      console.error("Token-based enrollment failed:", tokenError);
+      
+      // Fall back to session-based auth
+      console.log(`Making session-based request to: ${USERS_API}/${userId}/courses/${courseId}`);
       const response = await axiosWithCredentials.post(`${USERS_API}/${userId}/courses/${courseId}`);
       console.log("Enrollment response (session):", response.data);
       return response.data;
@@ -561,12 +633,17 @@ export const unenrollFromCourse = async (userId: string, courseId: string) => {
   console.log(`Unenrolling user ${userId} from course ${courseId}`);
   
   try {
-    // Try both methods
+    // Try token-based auth first
     try {
+      console.log(`Making token-based request to: ${USERS_API}/${userId}/courses/${courseId}`);
       const response = await axiosInstance.delete(`${USERS_API}/${userId}/courses/${courseId}`);
       console.log("Unenrollment response (token):", response.status);
       return response.data;
-    } catch (error) {
+    } catch (tokenError) {
+      console.error("Token-based unenrollment failed:", tokenError);
+      
+      // Fall back to session-based auth
+      console.log(`Making session-based request to: ${USERS_API}/${userId}/courses/${courseId}`);
       const response = await axiosWithCredentials.delete(`${USERS_API}/${userId}/courses/${courseId}`);
       console.log("Unenrollment response (session):", response.status);
       return response.data;
