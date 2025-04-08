@@ -55,6 +55,8 @@ const api = axios.create({
 api.interceptors.request.use(
   config => {
     console.log(`API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log("Request with credentials:", config.withCredentials);
+    console.log("Request headers:", config.headers);
     return config;
   },
   error => {
@@ -66,6 +68,13 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   response => {
     console.log(`API Response: ${response.status} from ${response.config.url}`);
+    console.log("Response headers:", response.headers);
+    
+    // Log any Set-Cookie headers (though browsers typically hide these)
+    if (response.headers['set-cookie']) {
+      console.log("Set-Cookie header present");
+    }
+    
     return response;
   },
   error => {
@@ -79,6 +88,18 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+// Test connection to ensure server is reachable
+export const testConnection = async () => {
+  try {
+    const response = await api.get(`${API_BASE}/test`);
+    console.log("Connection test successful:", response.data);
+    return true;
+  } catch (error) {
+    console.error("Connection test failed:", error);
+    return false;
+  }
+};
 
 // Cookie-based authentication functions
 export const checkAuth = async () => {
@@ -95,8 +116,24 @@ export const checkAuth = async () => {
 
 export const signin = async (credentials: any) => {
   try {
-    const response = await api.post(`${USERS_API}/signin`, credentials);
+    // Try connection test first
+    await testConnection();
+    
+    // Then attempt signin
+    const response = await api.post(`${USERS_API}/signin`, credentials, {
+      withCredentials: true, // Explicitly ensure credentials are sent
+    });
+    
     console.log("Signin response:", response.data);
+    
+    // Verify the authentication immediately
+    try {
+      const authCheck = await api.get(`${API_BASE}/auth-status`);
+      console.log("Auth check after signin:", authCheck.data);
+    } catch (err) {
+      console.warn("Auth check failed after signin:", err);
+    }
+    
     return response.data;
   } catch (error) {
     console.error("Signin failed:", error);
@@ -106,8 +143,23 @@ export const signin = async (credentials: any) => {
 
 export const signup = async (user: any) => {
   try {
-    const response = await api.post(`${USERS_API}/signup`, user);
+    // Try connection test first
+    await testConnection();
+    
+    const response = await api.post(`${USERS_API}/signup`, user, {
+      withCredentials: true, // Explicitly ensure credentials are sent
+    });
+    
     console.log("Signup response:", response.data);
+    
+    // Verify the authentication immediately
+    try {
+      const authCheck = await api.get(`${API_BASE}/auth-status`);
+      console.log("Auth check after signup:", authCheck.data);
+    } catch (err) {
+      console.warn("Auth check failed after signup:", err);
+    }
+    
     return response.data;
   } catch (error) {
     console.error("Signup failed:", error);

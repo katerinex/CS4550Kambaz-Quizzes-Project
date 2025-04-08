@@ -1,4 +1,5 @@
 // src/Kambaz/Account/Session.tsx
+// In Session.tsx
 import * as client from "./client";
 import { useEffect, useState } from "react";
 import { setCurrentUser } from "./reducer";
@@ -10,7 +11,7 @@ export default function Session({ children }: { children: any }) {
   
   const fetchProfile = async () => {
     try {
-      // Use the enhanced checkAuth function that tries both methods
+      console.log("Checking authentication status...");
       const { isAuthenticated, user } = await client.checkAuth();
       
       if (isAuthenticated && user) {
@@ -21,7 +22,6 @@ export default function Session({ children }: { children: any }) {
         dispatch(setCurrentUser(null));
       }
     } catch (err: any) {
-      // Don't set current user if there's an error
       console.log("Authentication check failed:", err.message || err);
       dispatch(setCurrentUser(null));
     } finally {
