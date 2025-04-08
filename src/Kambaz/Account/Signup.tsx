@@ -35,17 +35,9 @@ export default function Signup() {
     }
 
     try {
-      let currentUser;
-      
-      // First try normal session-based signup
-      try {
-        console.log("Attempting session-based signup...");
-        currentUser = await client.signup(user);
-      } catch (sessionError) {
-        console.log("Session signup failed, trying token signup...");
-        // If that fails, try token-based signup
-        currentUser = await client.tokenSignup(user);
-      }
+      // Only use session-based signup
+      console.log("Attempting signup...");
+      const currentUser = await client.signup(user);
       
       if (currentUser) {
         dispatch(setCurrentUser(currentUser));
