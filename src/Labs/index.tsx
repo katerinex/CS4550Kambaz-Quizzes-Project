@@ -21,7 +21,6 @@ export default function Labs() {
           <Route path="/" element={<NavigateToLab1 navigate={navigate} />} />
           <Route path="Lab1" element={<Lab1 />} />
           <Route path="Lab2/*" element={<Lab2 />} />
-          {/* Fix: Added trailing wildcard to nested routes paths */}
           <Route path="Lab3/*" element={<Lab3 />} />
           <Route path="Lab4/*" element={<Lab4 />} />
           <Route path="Lab5/*" element={<Lab5 />} />

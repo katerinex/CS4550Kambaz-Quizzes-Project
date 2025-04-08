@@ -1,24 +1,12 @@
 // src/Labs/Lab4/ReduxExamples/HelloRedux/helloReducer.ts
 
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-
-interface HelloState {
-  message: string;
-}
-
-const initialState: HelloState = {
+import { createSlice } from "@reduxjs/toolkit";
+const initialState = {
   message: "Hello World",
 };
-
 const helloSlice = createSlice({
   name: "hello",
   initialState,
-  reducers: {
-    setMessage: (state, action: PayloadAction<string>) => {
-      state.message = action.payload;
-    },
-  },
+  reducers: {},
 });
-
-export const { setMessage } = helloSlice.actions;
 export default helloSlice.reducer;

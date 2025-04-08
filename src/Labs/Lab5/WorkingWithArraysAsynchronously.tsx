@@ -1,5 +1,4 @@
 // src/Labs/Lab5/WorkingWithArraysAsynchronously.tsx
-
 import { useState, useEffect } from "react";
 import { ListGroup, FormControl } from "react-bootstrap";
 import { TiDelete } from "react-icons/ti";
@@ -9,61 +8,85 @@ import { FaPencil } from "react-icons/fa6";
 
 export default function WorkingWithArraysAsynchronously() {
   const [todos, setTodos] = useState<any[]>([]);
-  const [errorMessage, setErrorMessage] = useState(null);
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  
   const fetchTodos = async () => {
-    const todos = await client.fetchTodos();
-    setTodos(todos);
+    try {
+      const response = await client.fetchTodos();
+      // Ensure we're setting an array to state
+      setTodos(Array.isArray(response) ? response : []);
+    } catch (error: any) {
+      console.error("Error fetching todos:", error);
+      setErrorMessage(error?.message || "Failed to fetch todos");
+      setTodos([]); // Ensure todos is always an array even on error
+    }
   };
-
+  
   const removeTodo = async (todo: any) => {
-    const updatedTodos = await client.removeTodo(todo);
-    setTodos(updatedTodos);
+    try {
+      const updatedTodos = await client.removeTodo(todo);
+      // Ensure we're setting an array to state
+      setTodos(Array.isArray(updatedTodos) ? updatedTodos : []);
+    } catch (error: any) {
+      console.error("Error removing todo:", error);
+      setErrorMessage(error?.message || "Failed to remove todo");
+    }
   };
-
+  
   const deleteTodo = async (todo: any) => {
     try {
       await client.deleteTodo(todo);
       const newTodos = todos.filter((t) => t.id !== todo.id);
       setTodos(newTodos);
     } catch (error: any) {
-      setErrorMessage(error.response.data.message);
+      setErrorMessage(error?.response?.data?.message || error?.message || "Failed to delete todo");
     }
   };
-
+  
   const createTodo = async () => {
-    const todos = await client.createTodo();
-    setTodos(todos);
+    try {
+      const response = await client.createTodo();
+      // Ensure we're setting an array to state
+      setTodos(Array.isArray(response) ? response : []);
+    } catch (error: any) {
+      console.error("Error creating todo:", error);
+      setErrorMessage(error?.message || "Failed to create todo");
+    }
   };
-
+  
   const postTodo = async () => {
-    const newTodo = await client.postTodo({
-      title: "New Posted Todo",
-      completed: false,
-    });
-    setTodos([...todos, newTodo]);
+    try {
+      const newTodo = await client.postTodo({
+        title: "New Posted Todo",
+        completed: false,
+      });
+      setTodos([...todos, newTodo]);
+    } catch (error: any) {
+      console.error("Error posting todo:", error);
+      setErrorMessage(error?.message || "Failed to post todo");
+    }
   };
-
+  
   const editTodo = (todo: any) => {
     const updatedTodos = todos.map((t) =>
       t.id === todo.id ? { ...todo, editing: true } : t
     );
     setTodos(updatedTodos);
   };
-
+  
   const updateTodo = async (todo: any) => {
     try {
       await client.updateTodo(todo);
       setTodos(todos.map((t) => (t.id === todo.id ? todo : t)));
     } catch (error: any) {
-      setErrorMessage(error.response.data.message);
+      setErrorMessage(error?.response?.data?.message || error?.message || "Failed to update todo");
     }
   };
-
+  
   useEffect(() => {
     fetchTodos();
   }, []);
-
+  
   return (
     <div id="wd-asynchronous-arrays">
       <h3>Working with Arrays Asynchronously</h3>
@@ -89,7 +112,8 @@ export default function WorkingWithArraysAsynchronously() {
         />
       </h4>
       <ListGroup>
-        {todos.map((todo) => (
+        {/* Safeguard the rendering with Array.isArray check */}
+        {Array.isArray(todos) && todos.map((todo) => (
           <ListGroup.Item key={todo.id}>
             <FaPencil
               onClick={() => editTodo(todo)}

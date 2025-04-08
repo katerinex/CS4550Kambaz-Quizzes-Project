@@ -1,26 +1,25 @@
 // src/Labs/Lab5/WorkingWithObjectsAsynchronously.tsx
-
 import { useEffect, useState } from "react";
 import { FormControl } from "react-bootstrap";
 import * as client from "./client";
 
 export default function WorkingWithObjectsAsynchronously() {
   const [assignment, setAssignment] = useState<any>({});
-
+  
   const fetchAssignment = async () => {
     const assignment = await client.fetchAssignment();
     setAssignment(assignment);
   };
-
+  
   const updateTitle = async (title: string) => {
     const updatedAssignment = await client.updateTitle(title);
     setAssignment(updatedAssignment);
   };
-
+  
   useEffect(() => {
     fetchAssignment();
   }, []);
-
+  
   return (
     <div id="wd-asynchronous-objects">
       <h3>Working with Objects Asynchronously</h3>
@@ -33,7 +32,7 @@ export default function WorkingWithObjectsAsynchronously() {
         }
       />
       <FormControl
-        as="textarea" 
+        as="textarea"
         rows={3}
         defaultValue={assignment.description}
         className="mb-2"
@@ -58,8 +57,7 @@ export default function WorkingWithObjectsAsynchronously() {
           }
         />
         <label className="form-check-label" htmlFor="wd-completed">
-          {" "}
-          Completed{" "}
+          Completed
         </label>
       </div>
       <button

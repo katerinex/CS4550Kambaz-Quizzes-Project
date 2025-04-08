@@ -15,7 +15,7 @@ import StringStateVariables from "./StringStateVariables";
 import { useState } from "react";
 import AddRedux from "./ReduxExamples/AddRedux";
 import CounterRedux from "./ReduxExamples/CounterRedux";
-import HelloRedux from "./ReduxExamples/HelloRedux";
+import TodoList from "./ReduxExamples/todos/TodoList";
 
 export default function Lab4() {
   const [counter, setCounter] = useState(0);
@@ -26,8 +26,9 @@ export default function Lab4() {
 
   return (
     <div id="wd-passing-functions" className="container-fluid">
-      <h2 className="mb-4">Lab 4 - React State and Redux Examples</h2>
+      <h2 className="mb-4">Lab 4 </h2>
       <ReduxExamples />
+      <CounterRedux />
       <PassingFunctions theFunction={handleSayHello} />
       <ArrayStateVariable />
       <BooleanStateVariables />
@@ -41,8 +42,7 @@ export default function Lab4() {
       <PassingDataOnEvent />
       <StringStateVariables />
       <AddRedux />
-      <CounterRedux />
-      <HelloRedux />
+      <TodoList />
       <hr />
       <h2>End of Lab 4</h2>
       <hr />

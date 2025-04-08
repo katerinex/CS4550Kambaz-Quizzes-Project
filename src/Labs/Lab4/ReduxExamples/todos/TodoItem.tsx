@@ -1,5 +1,4 @@
 // src/Labs/Lab4/ReduxExamples/todos/TodoItem.tsx
-// Remove redundant key from TodoItem as it's now in TodoList
 import { Button, ListGroup } from 'react-bootstrap';
 import { useDispatch } from "react-redux";
 import { deleteTodo, setTodo } from "./todosReducer";
@@ -14,18 +13,27 @@ interface TodoItemProps {
 export default function TodoItem({ todo }: TodoItemProps) {
   const dispatch = useDispatch();
   return (
-    <ListGroup.Item>
-      <Button onClick={() => dispatch(deleteTodo(todo.id))} id="wd-delete-todo-click">
-        Delete
-      </Button>
-      <Button onClick={() => dispatch(setTodo(todo))} id="wd-set-todo-click">
-        Edit
-      </Button>
-      {todo.title}
+    <ListGroup.Item className="d-flex justify-content-between align-items-center">
+      <span>{todo.title}</span>
+      <div>
+        <Button
+          onClick={() => dispatch(setTodo(todo))}
+          id="wd-set-todo-click"
+          className="me-1"
+          size="sm"
+          variant="primary"
+        >
+          Edit
+        </Button>
+        <Button
+          onClick={() => dispatch(deleteTodo(todo.id))}
+          id="wd-delete-todo-click"
+          size="sm"
+          variant="danger"
+        >
+          Delete
+        </Button>
+      </div>
     </ListGroup.Item>
   );
 }
-
-// Fix for other components with the "key" warning:
-// The pattern will be similar for AddingAndRemovingToFromArrays, MapFunction, and SimpleArrays.
-// For each component that maps over arrays to create elements, add a key prop:
