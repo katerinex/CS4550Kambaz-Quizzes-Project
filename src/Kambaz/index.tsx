@@ -2,9 +2,11 @@
 
 import { Routes, Route, Navigate } from "react-router-dom";
 import Account from "./Account";
-import Dashboard from "./Dashboard";
+import Dashboard from "./Dashboard"; // Import the combined Dashboard component
 import KambazNavigation from "./Navigation";
 import Courses from "./Courses";
+import CourseList from "./Courses/CourseList";
+import AllCourses from "./Courses/AllCourses";
 import Calendar from "./Calendar";
 import Inbox from "./Inbox";
 import "./styles.css";
@@ -17,7 +19,6 @@ import {
   fetchCoursesStart,
   fetchCoursesFailure,
 } from "./Courses/reducer";
-import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
 import { Course } from "./types";
 import axios from "axios";
@@ -25,7 +26,6 @@ import axios from "axios";
 export default function Kambaz() {
   const { user } = useSelector((state: any) => state.accountReducer);
   const { courses } = useSelector((state: any) => state.coursesReducer);
-  const [enrolling, setEnrolling] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
@@ -79,112 +79,13 @@ export default function Kambaz() {
     }
   };
 
-  const updateEnrollment = async (courseId: string, enrolled: boolean) => {
-    if (!user || !user._id || !courseId || courseId === "undefined") {
-      return;
-    }
-    
-    setIsLoading(true);
-    dispatch(fetchCoursesStart());
-    
-    try {
-      if (enrolled) {
-        await userClient.enrollIntoCourse(user._id, courseId);
-      } else {
-        await userClient.unenrollFromCourse(user._id, courseId);
-      }
-      
-      const updatedCourses = courses.map((course: Course) => {
-        if (course._id === courseId) {
-          return { ...course, enrolled: enrolled };
-        } else {
-          return course;
-        }
-      });
-      
-      dispatch(setCourses(updatedCourses));
-      setIsLoading(false);
-    } catch (error) {
-      await handleNetworkError(error);
-      
-      let errorMessage = "Failed to update enrollment";
-      if (error instanceof Error) {
-        errorMessage = error.message || errorMessage;
-      }
-      dispatch(fetchCoursesFailure(errorMessage));
-      setIsLoading(false);
-    }
-  };
-
-  const fetchCourses = async () => {
-    if (!user || !user._id) {
-      setIsLoading(false);
-      return;
-    }
-    
-    setIsLoading(true);
-    dispatch(fetchCoursesStart());
-    
-    try {
-      const allCourses = await courseClient.findAllCourses();
-      
-      if (!Array.isArray(allCourses)) {
-        dispatch(fetchCoursesFailure("Invalid response format from server"));
-        setError("Failed to load courses. Please try again later.");
-        setIsLoading(false);
-        return;
-      }
-      
-      const validAllCourses = allCourses.filter((course: any) => course && course._id);
-      
-      if (validAllCourses.length === 0) {
-        dispatch(setCourses([]));
-        setIsLoading(false);
-        return;
-      }
-      
-      let enrolledCourseIds: string[] = [];
-      
-      try {
-        const enrolledCourses = await userClient.findCoursesForUser(user._id);
-        
-        if (Array.isArray(enrolledCourses)) {
-          enrolledCourseIds = enrolledCourses
-            .filter((course: any) => course && course._id)
-            .map((course: any) => course._id);
-        }
-      } catch (enrollError) {}
-      
-      const processedCourses = validAllCourses.map((course: any) => ({
-        ...course,
-        enrolled: enrolledCourseIds.includes(course._id)
-      }));
-      
-      dispatch(setCourses(processedCourses));
-      setIsLoading(false);
-    } catch (error) {
-      await handleNetworkError(error);
-      
-      let errorMessage = "Failed to fetch available courses";
-      if (error instanceof Error) {
-        errorMessage = error.message || errorMessage;
-      }
-      dispatch(fetchCoursesFailure(errorMessage));
-      setIsLoading(false);
-    }
-  };
-
   useEffect(() => {
     if (user && user._id) {
-      if (enrolling) {
-        fetchCourses();
-      } else {
-        findCoursesForUser();
-      }
+      findCoursesForUser();
     } else {
       setIsLoading(false);
     }
-  }, [user, enrolling]);
+  }, [user]);
 
   return (
     <Session>
@@ -199,11 +100,7 @@ export default function Kambaz() {
                 className="btn btn-sm btn-outline-danger" 
                 onClick={() => {
                   setError(null);
-                  if (enrolling) {
-                    fetchCourses();
-                  } else {
-                    findCoursesForUser();
-                  }
+                  findCoursesForUser();
                 }}
               >
                 Try Again
@@ -226,12 +123,23 @@ export default function Kambaz() {
                 path="/Dashboard/*"
                 element={
                   <ProtectedRoute>
-                    <Dashboard
-                      courses={courses}
-                      enrolling={enrolling}
-                      setEnrolling={setEnrolling}
-                      updateEnrollment={updateEnrollment}
-                    />
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/Courses"
+                element={
+                  <ProtectedRoute>
+                    <AllCourses />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/Courses/list"
+                element={
+                  <ProtectedRoute>
+                    <CourseList />
                   </ProtectedRoute>
                 }
               />

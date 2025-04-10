@@ -27,7 +27,6 @@ body {
   max-width: 100%;
   height: auto;
   background-color: black;
-  
 }
 
 #wd-kambaz-navigation .list-group-item {
@@ -99,7 +98,7 @@ body {
 }
 
 #wd-assignments .list-group-item {
-  border-left: 5px solid green;
+  border-left: 5px solid transparent;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1rem;
   border-radius: 0.5rem;
@@ -346,14 +345,6 @@ body {
     }
 }
 
-
-
-
-
-
-
-/* Add these styles to the end of your existing CSS file */
-
 /* Course Navigation Styles */
 .wd-course-navigation {
   min-width: 200px;
@@ -416,4 +407,299 @@ body {
 #wd-courses h2.text-danger {
   font-size: 1.5rem;
   margin-bottom: 15px;
+}
+
+/* Dashboard and Courses Styles */
+
+/* Card Grid Layout */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+/* Course Cards */
+.course-card-wrapper {
+  display: flex;
+  width: 100%;
+}
+
+.course-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid #dee2e6;
+  overflow: hidden;
+}
+
+.course-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.course-card-logo {
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0;
+  overflow: hidden;
+}
+
+.course-card-body {
+  flex-grow: 1;
+  padding: 1rem;
+}
+
+.course-card .card-title {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #2d3b45;
+}
+
+.course-description {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: rgba(0, 0, 0, 0.5); /* Transparent black text */
+  background-color: transparent !important; /* Ensure no background color */
+}
+
+/* Remove any possible green background that might be applied at different levels */
+p.course-description,
+.card-text.course-description {
+  background: none !important;
+  background-color: transparent !important;
+}
+
+/* In case the green is coming from a parent element */
+.card-body {
+  background-color: white !important;
+}
+
+.course-card .card-footer {
+  background-color: #f8f9fa;
+  border-top: 1px solid #dee2e6;
+  padding: 0.75rem;
+}
+
+/* Dashboard Navigation */
+.dashboard-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.dashboard-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Tabs for Course Listing */
+.nav-tabs .nav-link {
+  color: #495057;
+  border: 1px solid transparent;
+  border-top-left-radius: 0.25rem;
+  border-top-right-radius: 0.25rem;
+  padding: 0.5rem 1rem;
+}
+
+.nav-tabs .nav-link:hover {
+  border-color: #e9ecef #e9ecef #dee2e6;
+}
+
+.nav-tabs .nav-link.active {
+  color: #dc3545;
+  background-color: #fff;
+  border-color: #dee2e6 #dee2e6 #fff;
+  font-weight: 500;
+}
+
+/* Course dropdown menu styles */
+.course-dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.course-dropdown-toggle {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.course-dropdown-toggle:hover {
+  background-color: #e9ecef;
+}
+
+.course-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  min-width: 240px;
+  padding: 0.5rem 0;
+  margin-top: 0.125rem;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.175);
+}
+
+.course-dropdown-header {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.course-dropdown-header h6 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #2d3b45;
+}
+
+.course-dropdown-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 0.5rem 0;
+}
+
+.course-dropdown-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: #495057;
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background-color 0.2s;
+}
+
+.course-dropdown-item:hover {
+  background-color: #f8f9fa;
+  color: #dc3545;
+}
+
+.course-dropdown-footer {
+  padding: 0.5rem 1rem;
+  border-top: 1px solid #e9ecef;
+  text-align: center;
+}
+
+.course-dropdown-footer a {
+  color: #007bff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.course-dropdown-footer a:hover {
+  text-decoration: underline;
+}
+
+/* View toggle button */
+.view-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}
+
+.view-toggle:hover {
+  background-color: #e9ecef;
+}
+
+.view-toggle svg {
+  font-size: 1.25rem;
+}
+
+/* List view styles */
+.course-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #dee2e6;
+  border-radius: 0.25rem;
+  margin-bottom: 0.5rem;
+  transition: background-color 0.2s;
+}
+
+.course-list-item:hover {
+  background-color: #f8f9fa;
+}
+
+.course-list-info {
+  flex: 1;
+}
+
+.course-list-info h5 {
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+  color: #2d3b45;
+}
+
+.course-list-info p {
+  margin-bottom: 0;
+  color: #5a6268;
+  font-size: 0.9rem;
+}
+
+.course-list-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .courses-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+  
+  .dashboard-nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .dashboard-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .course-dropdown-menu {
+    width: 90vw;
+    max-width: 300px;
+  }
+  
+  .course-list-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .course-list-info {
+    margin-bottom: 1rem;
+  }
+  
+  .course-list-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
 }

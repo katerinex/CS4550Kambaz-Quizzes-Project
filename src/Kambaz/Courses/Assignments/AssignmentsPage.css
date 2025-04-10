@@ -1,0 +1,261 @@
+/* src/Kambaz/Courses/Assignments/AssignmentsPage.css */
+
+.assignments-page {
+  font-family: "Lato", "Helvetica Neue", Arial, sans-serif;
+  color: #2D3B45;
+  background-color: #fff;
+}
+
+/* Header and controls */
+.search-container .form-control {
+  border-right: none;
+  height: 38px;
+}
+
+.search-container .input-group-text {
+  background-color: #fff;
+  border-left: none;
+}
+
+.action-buttons .btn {
+  font-weight: 500;
+}
+
+/* Use green color that matches Canvas UI */
+.btn-success {
+  background-color: #0F8F35;
+  border-color: #0F8F35;
+}
+
+.btn-success:hover {
+  background-color: #0A7429;
+  border-color: #0A7429;
+}
+
+/* Assignment groups */
+.assignment-group {
+  border: 1px solid #C7CDD1;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  position: relative; /* Required for proper positioning of children */
+}
+
+.assignment-group-header {
+  background-color: #F5F5F5;
+  padding: 10px 15px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.assignment-group-header h6 {
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.discussion-toggle {
+  color: #2D3B45;
+  font-size: 0.8rem;
+}
+
+/* Assignment items */
+.assignment-item {
+  padding: 12px 15px;
+  border-top: 1px solid #E6E8EA;
+  display: flex;
+  align-items: center;
+  transition: background-color 0.2s;
+  position: relative; /* Important for dropdown positioning */
+}
+
+.assignment-item:hover {
+  background-color: #F5F5F5;
+}
+
+.assignment-item h6 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 0;
+}
+
+.assignment-item .text-muted {
+  font-size: 0.85rem;
+  color: #6B7780 !important;
+}
+
+/* Icons */
+.icon-discussion,
+.icon-assignment {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background-color: #7D8B95;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+/* Alternatively, use Font Awesome icons */
+.icon-discussion::before {
+  content: "\f075"; /* fa-comment icon */
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+.icon-assignment::before {
+  content: "\f15c"; /* fa-file-alt icon */
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  color: #fff;
+  font-size: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+
+/* Hide default dropdown caret */
+.dropdown-toggle::after {
+  display: none;
+}
+
+.text-success {
+  color: #0F8F35 !important;
+}
+
+/* Dropdown ellipsis button */
+.btn-link {
+  color: #6B7780;
+  padding: 4px 8px;
+}
+
+.btn-link:hover {
+  color: #2D3B45;
+  background-color: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+
+/* Dropdown menu styling */
+.dropdown-menu {
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #C7CDD1;
+  border-radius: 4px;
+  padding: 8px 0;
+}
+
+.dropdown-item {
+  padding: 8px 15px;
+  font-size: 0.9rem;
+  color: #2D3B45;
+}
+
+.dropdown-item:hover {
+  background-color: #F5F5F5;
+}
+
+/* Modal styling */
+.modal-header {
+  border-bottom: 1px solid #E6E8EA;
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.modal-footer {
+  border-top: 1px solid #E6E8EA;
+}
+
+/* Form elements within modals */
+.form-label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.form-control, .form-select {
+  border: 1px solid #C7CDD1;
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #008EE2;
+  box-shadow: 0 0 0 0.25rem rgba(0, 142, 226, 0.25);
+}
+
+.form-check-input:checked {
+  background-color: #008EE2;
+  border-color: #008EE2;
+}
+
+/* Add this to your CSS file to match the screenshot */
+.btn-outline-secondary {
+  color: #2D3B45;
+  border-color: #C7CDD1;
+}
+
+.btn-outline-secondary:hover {
+  background-color: #F5F5F5;
+  color: #2D3B45;
+  border-color: #B4BDC3;
+}
+
+/* Fixed position dropdown menu for the assignment items */
+.dropdown-wrapper {
+  position: static;
+}
+
+.dropdown-toggle-fixed {
+  position: relative;
+  z-index: 10;
+}
+
+/* Higher z-index for dropdown menus to ensure they appear above other elements */
+.dropdown-menu-higher-z {
+  z-index: 1050 !important;
+  position: absolute !important;
+}
+
+/* Ensure the assignment icons container doesn't hide the dropdown */
+.assignment-icons {
+  position: relative;
+  z-index: 5;
+}
+
+/* Make sure the dropdown button is always clickable */
+.dropdown button {
+  position: relative;
+  z-index: 10;
+}
+
+/* Group dropdown styling */
+.group-dropdown .dropdown-toggle {
+  color: #6B7780;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.group-dropdown .dropdown-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  color: #2D3B45;
+}
+
+/* Make sure the group header options are always visible */
+.assignment-group-header:hover .group-dropdown .dropdown-toggle {
+  opacity: 1;
+}
+
+/* Custom modal width for the group edit modal */
+.modal-dialog {
+  max-width: 500px;
+}

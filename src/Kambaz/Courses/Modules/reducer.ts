@@ -1,59 +1,72 @@
 // src/Kambaz/Courses/Modules/reducer.ts
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-interface Lesson {
+import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+export interface Lesson {
   _id: string;
   name: string;
   description?: string;
   module: string;
   published?: boolean;
+  points?: number;
 }
 
-interface Module {
+export interface Module {
   _id: string;
   name: string;
-  course: string;
   description?: string;
-  lessons?: Lesson[];
-  editing?: boolean;
+  course: string;
   published?: boolean;
+  lessons?: Lesson[];
 }
 
 interface ModulesState {
   modules: Module[];
+  loading: boolean;
+  error: string | null;
 }
 
 const initialState: ModulesState = {
   modules: [],
+  loading: false,
+  error: null,
 };
 
 const modulesSlice = createSlice({
-  name: "modules",
+  name: 'modules',
   initialState,
   reducers: {
     setModules: (state, action: PayloadAction<Module[]>) => {
       state.modules = action.payload;
     },
     addModule: (state, action: PayloadAction<Module>) => {
-      state.modules = [...state.modules, action.payload];
-    },
-    deleteModule: (state, action: PayloadAction<string>) => {
-      state.modules = state.modules.filter((m) => m._id !== action.payload);
+      state.modules.push(action.payload);
     },
     updateModule: (state, action: PayloadAction<Module>) => {
-      state.modules = state.modules.map((m) =>
-        m._id === action.payload._id ? action.payload : m
-      );
+      const index = state.modules.findIndex(module => module._id === action.payload._id);
+      if (index !== -1) {
+        state.modules[index] = action.payload;
+      }
     },
-    editModule: (state, action: PayloadAction<string>) => {
-      state.modules = state.modules.map((m) =>
-        m._id === action.payload ? { ...m, editing: true } : m
-      );
+    deleteModule: (state, action: PayloadAction<string>) => {
+      state.modules = state.modules.filter(module => module._id !== action.payload);
+    },
+    setLoading: (state, action: PayloadAction<boolean>) => {
+      state.loading = action.payload;
+    },
+    setError: (state, action: PayloadAction<string | null>) => {
+      state.error = action.payload;
     },
   },
 });
 
-export const { addModule, deleteModule, updateModule, editModule, setModules } =
-  modulesSlice.actions;
-  
+export const {
+  setModules,
+  addModule,
+  updateModule,
+  deleteModule,
+  setLoading,
+  setError,
+} = modulesSlice.actions;
+
 export default modulesSlice.reducer;

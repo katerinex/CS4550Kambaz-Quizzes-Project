@@ -1,0 +1,155 @@
+
+/* src/Kambaz/Courses/CoursesNavigation.css */
+/* Sidebar styles */
+.courses-sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.courses-sidebar {
+  width: 300px;
+  height: 100%;
+  background-color: white;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.2);
+  overflow-y: auto;
+  -webkit-animation: slideIn 0.3s ease-out;
+  animation: slideIn 0.3s ease-out;
+  margin-left: 120px; /* Adjust this value to match your main navigation width */
+}
+
+@-webkit-keyframes slideIn {
+  from {
+    -webkit-transform: translateX(-100%);
+    transform: translateX(-100%);
+  }
+  to {
+    -webkit-transform: translateX(0);
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.courses-sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.courses-sidebar-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+.courses-sidebar-close {
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  cursor: pointer;
+  color: #777;
+  padding: 0 5px;
+}
+
+.courses-sidebar-close:hover {
+  color: #333;
+}
+
+.courses-sidebar-section {
+  padding: 15px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.all-courses-link {
+  display: block;
+  padding: 8px 20px;
+  color: #2d3b45;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.all-courses-link:hover {
+  background-color: #f5f5f5;
+}
+
+.course-sidebar-item {
+  padding: 8px 20px;
+  border-left: 3px solid transparent;
+}
+
+.course-sidebar-item:hover {
+  background-color: #f5f5f5;
+  border-left-color: transparent; /* Changed from #0a8ed0 (blue) to transparent */
+}
+
+.course-sidebar-item a {
+  display: block;
+  color: #2d3b45;
+  text-decoration: none;
+  font-weight: normal;
+}
+
+.course-sidebar-term {
+  font-size: 0.8rem;
+  color: #777;
+  margin-top: 2px;
+}
+
+.courses-sidebar-empty {
+  padding: 15px 20px;
+  color: #777;
+}
+
+.courses-sidebar-footer {
+  padding: 15px 20px;
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #f5f5f5;
+  border-top: 1px solid #ddd;
+}
+
+/* Course Menu styles */
+.course-menu {
+  width: 200px;
+  margin-right: 20px;
+}
+
+.course-menu .list-group-item {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  padding: 10px 15px;
+}
+
+.course-menu .nav-link {
+  color: #495057;
+  padding: 8px 0;
+  display: block;
+  text-decoration: none;
+}
+
+.course-menu .nav-link:hover {
+  color: #212529;
+  text-decoration: none;
+}
+
+.course-menu .nav-link.active {
+  color: #007bff;
+  font-weight: 500;
+}
