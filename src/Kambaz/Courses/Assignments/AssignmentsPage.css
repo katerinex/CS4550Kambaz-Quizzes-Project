@@ -259,3 +259,72 @@
 .modal-dialog {
   max-width: 500px;
 }
+
+/* Student view styling */
+.assignment-icon {
+  color: #2D8CE0;
+  font-size: 1.2rem;
+}
+
+.assignment-title {
+  color: #2D8CE0;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.assignment-title:hover {
+  text-decoration: underline;
+  color: #0E5DAF;
+}
+
+/* View mode nav tabs */
+.view-mode-buttons .nav {
+  border: 1px solid #C7CDD1;
+  overflow: hidden;
+}
+
+.view-mode-buttons .nav-link {
+  color: #2D3B45;
+  border: none;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.view-mode-buttons .nav-link.active {
+  background-color: #2D8CE0;
+  color: #fff;
+}
+
+.view-mode-buttons .nav-link:hover:not(.active) {
+  background-color: #F5F5F5;
+}
+
+/* Student view specific styles */
+.student-view .assignment-item {
+  border-left: 3px solid transparent;
+}
+
+.student-view .assignment-item:hover {
+  border-left-color: #2D8CE0;
+}
+
+.student-view .past-due {
+  color: #CF3E3E;
+}
+
+.student-view .submitted {
+  color: #0F8F35;
+}
+
+/* Primary button for student submission */
+.btn-primary {
+  background-color: #2D8CE0;
+  border-color: #2D8CE0;
+}
+
+.btn-primary:hover {
+  background-color: #1A68B2;
+  border-color: #1A68B2;
+}

@@ -1,6 +1,6 @@
 // src/Kambaz/Courses/reducer.ts
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { Course } from "./../types"; 
+import { Course } from "./../types";
 
 interface CoursesState {
   courses: Course[];
@@ -10,7 +10,7 @@ interface CoursesState {
 }
 
 const initialState: CoursesState = {
-  courses: [], 
+  courses: [],
   course: null,
   loading: false,
   error: null,
@@ -77,6 +77,11 @@ const coursesSlice = createSlice({
       state.loading = true;
       state.error = null;
     },
+    fetchCoursesSuccess: (state, action: PayloadAction<Course[]>) => {
+      state.courses = action.payload;
+      state.loading = false;
+      state.error = null;
+    },
     fetchCoursesFailure: (state, action: PayloadAction<string>) => {
       state.loading = false;
       state.error = action.payload;
@@ -97,6 +102,7 @@ export const {
   updateCourseSuccess,
   updateCourseFailure,
   fetchCoursesStart,
+  fetchCoursesSuccess,
   fetchCoursesFailure,
 } = coursesSlice.actions;
 

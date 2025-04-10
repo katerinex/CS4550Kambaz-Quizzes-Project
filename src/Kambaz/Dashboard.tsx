@@ -7,7 +7,8 @@ import * as accountClient from "./Account/client";
 import * as coursesClient from "./Courses/client";
 import { setCurrentUser } from "./Account/reducer";
 import { 
-  setCourses,
+  setCourses, 
+  setCourse,  
   addCourseStart,
   addCourseSuccess,
   addCourseFailure,
@@ -18,6 +19,7 @@ import {
   updateCourseSuccess,
   updateCourseFailure,
   fetchCoursesStart,
+  fetchCoursesSuccess,
   fetchCoursesFailure
 } from "./Courses/reducer";
 import CoursesDropdown from "./Courses/CoursesDropdown";
@@ -192,22 +194,20 @@ const Dashboard: React.FC = () => {
   // State from Redux
   const { 
     courses, 
+    course: selectedCourse, // Get the current selected course from Redux
+    loading: coursesLoading,
     error: coursesError 
   } = useSelector((state: any) => state.coursesReducer);
   
-  const { user } = useSelector((state: any) => state.accountReducer);
+  const { user, loading: userLoading } = useSelector((state: any) => state.accountReducer);
   
   // Component state
-  const [course, setCourse] = useState<Course | null>(null);
+  const [course, setCourseState] = useState<Course | null>(null); // Renamed to avoid confusion
   const [enrolling, setEnrolling] = useState(false);
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [courseToDelete, setCourseToDelete] = useState<string | null>(null);
   const [dashboardView, setDashboardView] = useState<"card" | "list">("card");
-  const [loadingState, setLoadingState] = useState({
-    profile: true,
-    timeout: false
-  });
   
   // Pagination state
   const [pagination, setPagination] = useState({
@@ -215,15 +215,12 @@ const Dashboard: React.FC = () => {
     limit: 12 // Show 12 courses per page
   });
 
-  // Add performance optimizations for initial rendering
-  React.useLayoutEffect(() => {
-    // Prevent layout thrashing by batching DOM reads and writes
-    document.body.style.overflowY = 'hidden'; // Prevent scroll jumps
-    
-    return () => {
-      document.body.style.overflowY = ''; // Restore scrolling when component loads
-    };
-  }, []);
+  // Synchronize local course state with Redux when selectedCourse changes
+  useEffect(() => {
+    if (selectedCourse) {
+      setCourseState(selectedCourse);
+    }
+  }, [selectedCourse]);
 
   // Memoized values
   const isAdmin = useMemo(() => user && user.role === "ADMIN", [user]);
@@ -246,65 +243,72 @@ const Dashboard: React.FC = () => {
     return Math.ceil(courses.length / pagination.limit);
   }, [courses, pagination.limit]);
 
-  // Fetch courses when component mounts
+  // Method to manually refresh course data
+  const refreshCourses = useCallback(async () => {
+    try {
+      dispatch(fetchCoursesStart());
+      const fetchedCourses = await coursesClient.findAllCourses();
+      // Use setCourses action instead of fetchCoursesSuccess
+      dispatch(setCourses(fetchedCourses));
+    } catch (error: any) {
+      console.error("Error refreshing courses:", error);
+      dispatch(fetchCoursesFailure(error.message || "Failed to refresh courses"));
+    }
+  }, [dispatch]);
+
+  // Fetch courses only once when component mounts
   useEffect(() => {
     const fetchCourses = async () => {
+      // Prevent fetching if already loading or we already have courses
+      if (coursesLoading || (courses && courses.length > 0)) return;
+      
       try {
         dispatch(fetchCoursesStart());
         const fetchedCourses = await coursesClient.findAllCourses();
-        dispatch(setCourses(fetchedCourses));
+        dispatch(fetchCoursesSuccess(fetchedCourses));
       } catch (error: any) {
+        console.error("Error fetching courses:", error);
         dispatch(fetchCoursesFailure(error.message || "Failed to fetch courses"));
       }
     };
 
     fetchCourses();
-  }, [dispatch]);
+  }, [dispatch, courses, coursesLoading]);
 
   // Fetch the user profile
   const fetchProfile = useCallback(async () => {
+    // Skip if already loading or we already have user data
+    if (userLoading || user) return;
+    
     try {
-      // Set a loading timeout to show a message if loading takes too long
-      const timeoutId = setTimeout(() => {
-        setLoadingState(prev => ({ ...prev, timeout: true }));
-      }, 5000);
-      
-      // Fetch user profile
       const userProfile = await accountClient.profile();
       dispatch(setCurrentUser(userProfile));
-      
-      // Clear the timeout if we get a response
-      clearTimeout(timeoutId);
     } catch (error: any) {
+      console.error("Error fetching profile:", error);
       if (error.response?.status === 401) {
         navigate("/Kambaz/Account/Signin");
       }
-    } finally {
-      // Delay the loading state change slightly to avoid flashing content
-      setTimeout(() => {
-        setLoadingState(prev => ({ ...prev, profile: false }));
-      }, 100);
     }
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, user, userLoading]);
 
-  // Load profile data once
+  // Load profile data once when component mounts
   useEffect(() => {
     fetchProfile();
-    
-    // After profile is loaded, immediately change the loading state 
-    // to prevent any visual loading indicators for courses
-    setLoadingState(prev => ({ ...prev, profile: false }));
   }, [fetchProfile]);
 
   // Add new course
   const addNewCourse = () => {
-    setCourse(null); // Reset selected course
-    setIsFormModalOpen(true); // Open modal with empty form
+    setCourseState(null);
+    // Clear the selected course in Redux store
+    dispatch(setCourse(null));
+    setIsFormModalOpen(true);
   };
 
   // Show edit form for a course
   const handleEditCourse = (selectedCourse: Course) => {
-    setCourse(selectedCourse);
+    setCourseState(selectedCourse);
+    // Set the selected course in Redux store
+    dispatch(setCourse(selectedCourse));
     setIsFormModalOpen(true);
   };
 
@@ -328,8 +332,11 @@ const Dashboard: React.FC = () => {
         const newCourse = await coursesClient.createCourse(formData);
         dispatch(addCourseSuccess(newCourse));
       }
+      // Clear the selected course in Redux store
+      dispatch(setCourse(null));
       setIsFormModalOpen(false);
     } catch (error: any) {
+      console.error("Error submitting course:", error);
       if (formData._id) {
         dispatch(updateCourseFailure(error.message || "Failed to update course"));
       } else {
@@ -349,6 +356,7 @@ const Dashboard: React.FC = () => {
       setDeleteModalOpen(false);
       setCourseToDelete(null);
     } catch (error: any) {
+      console.error("Error deleting course:", error);
       dispatch(deleteCourseFailure(error.message || "Failed to delete course"));
     }
   };
@@ -356,6 +364,8 @@ const Dashboard: React.FC = () => {
   // Update course enrollment status
   const updateEnrollment = async (courseId: string, enrolled: boolean) => {
     try {
+      if (!courses) return;
+      
       // Find the course to update
       const courseToUpdate = courses.find((c: Course) => c._id === courseId);
       if (!courseToUpdate) return;
@@ -371,6 +381,7 @@ const Dashboard: React.FC = () => {
       const result = await coursesClient.updateCourse(updatedCourse);
       dispatch(updateCourseSuccess(result));
     } catch (error: any) {
+      console.error("Error updating enrollment:", error);
       dispatch(updateCourseFailure(error.message || "Failed to update enrollment"));
     }
   };
@@ -392,25 +403,15 @@ const Dashboard: React.FC = () => {
     window.scrollTo(0, 0);
   }, []);
 
-  // Render an improved loading state with animation
-  if (loadingState.profile) {
+  // Show a simple loading state
+  if (!user) {
     return (
       <div className="p-4" id="wd-dashboard">
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h1 id="wd-dashboard-title">Dashboard</h1>
-        </div>
+        <h1 id="wd-dashboard-title">Dashboard</h1>
         <hr />
-        
-        <div className="static-loading-container">
-          <p className="loading-text">Loading your courses...</p>
+        <div className="p-3">
+          <p>Loading dashboard...</p>
         </div>
-        
-        {loadingState.timeout && (
-          <div className="alert alert-info mt-3">
-            <i className="fa fa-info-circle me-2"></i>
-            This is taking longer than expected. Please be patient...
-          </div>
-        )}
       </div>
     );
   }
@@ -448,6 +449,14 @@ const Dashboard: React.FC = () => {
         {coursesError && (
           <div className="alert alert-danger">
             Error loading courses: {coursesError}
+            <Button 
+              variant="outline-danger" 
+              size="sm" 
+              className="ms-3"
+              onClick={refreshCourses}
+            >
+              Refresh Courses
+            </Button>
           </div>
         )}
 
@@ -456,7 +465,6 @@ const Dashboard: React.FC = () => {
         
         {canEdit && (
           <div className="mb-4">
-            <h3></h3>
             <div className="d-flex justify-content-end mb-3">
               <Button variant="primary" onClick={addNewCourse}>
                 Add New Course
@@ -467,81 +475,87 @@ const Dashboard: React.FC = () => {
         
         <h3>Published Courses ({courses?.length || 0})</h3>
         
-        <div className="row" id="wd-dashboard-courses">
-          <div className={dashboardView === "card" ? "courses-grid" : "list-group w-100"}>
-            {displayedCourses && displayedCourses.length > 0 ? (
-              dashboardView === "card" ? (
-                // Card View
-                displayedCourses.map((course: Course) => (
-                  <CourseCard
-                    key={course._id || `course-${Math.random()}`}
-                    course={course}
-                    canEdit={canEdit}
-                    enrolling={enrolling}
-                    onDelete={handleShowDeleteModal}
-                    onSetCourse={handleEditCourse}
-                    onEnrollment={updateEnrollment}
-                  />
-                ))
-              ) : (
-                // List View
-                displayedCourses.map((course: Course) => (
-                  <CourseListItem
-                    key={course._id || `course-${Math.random()}`}
-                    course={course}
-                    canEdit={canEdit}
-                    enrolling={enrolling}
-                    onDelete={handleShowDeleteModal}
-                    onSetCourse={handleEditCourse}
-                    onEnrollment={updateEnrollment}
-                  />
-                ))
-              )
-            ) : (
-              <div className="col-12">
-                <p>No courses available. {enrolling ? "Try selecting 'All Courses' to enroll in available courses." : "You are not enrolled in any courses."}</p>
-              </div>
-            )}
+        {coursesLoading ? (
+          <div className="p-3 text-center">
+            <p>Loading courses...</p>
           </div>
-          
-          {/* Pagination controls */}
-          {courses && courses.length > pagination.limit && (
-            <nav className="mt-4 d-flex justify-content-center">
-              <ul className="pagination">
-                <li className={`page-item ${pagination.page === 1 ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => handlePageChange(pagination.page - 1)}
-                    disabled={pagination.page === 1}
-                  >
-                    Previous
-                  </button>
-                </li>
-                
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <li key={page} className={`page-item ${pagination.page === page ? 'active' : ''}`}>
+        ) : (
+          <div className="row" id="wd-dashboard-courses">
+            <div className={dashboardView === "card" ? "courses-grid" : "list-group w-100"}>
+              {displayedCourses && displayedCourses.length > 0 ? (
+                dashboardView === "card" ? (
+                  // Card View
+                  displayedCourses.map((course: Course) => (
+                    <CourseCard
+                      key={course._id || `course-${Math.random()}`}
+                      course={course}
+                      canEdit={canEdit}
+                      enrolling={enrolling}
+                      onDelete={handleShowDeleteModal}
+                      onSetCourse={handleEditCourse}
+                      onEnrollment={updateEnrollment}
+                    />
+                  ))
+                ) : (
+                  // List View
+                  displayedCourses.map((course: Course) => (
+                    <CourseListItem
+                      key={course._id || `course-${Math.random()}`}
+                      course={course}
+                      canEdit={canEdit}
+                      enrolling={enrolling}
+                      onDelete={handleShowDeleteModal}
+                      onSetCourse={handleEditCourse}
+                      onEnrollment={updateEnrollment}
+                    />
+                  ))
+                )
+              ) : (
+                <div className="col-12">
+                  <p>No courses available. {enrolling ? "Try selecting 'All Courses' to enroll in available courses." : ""}</p>
+                </div>
+              )}
+            </div>
+            
+            {/* Pagination controls */}
+            {courses && courses.length > pagination.limit && (
+              <nav className="mt-4 d-flex justify-content-center">
+                <ul className="pagination">
+                  <li className={`page-item ${pagination.page === 1 ? 'disabled' : ''}`}>
                     <button 
                       className="page-link" 
-                      onClick={() => handlePageChange(page)}
+                      onClick={() => handlePageChange(pagination.page - 1)}
+                      disabled={pagination.page === 1}
                     >
-                      {page}
+                      Previous
                     </button>
                   </li>
-                ))}
-                
-                <li className={`page-item ${pagination.page === totalPages ? 'disabled' : ''}`}>
-                  <button 
-                    className="page-link" 
-                    onClick={() => handlePageChange(pagination.page + 1)}
-                    disabled={pagination.page === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </div>
+                  
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <li key={page} className={`page-item ${pagination.page === page ? 'active' : ''}`}>
+                      <button 
+                        className="page-link" 
+                        onClick={() => handlePageChange(page)}
+                      >
+                        {page}
+                      </button>
+                    </li>
+                  ))}
+                  
+                  <li className={`page-item ${pagination.page === totalPages ? 'disabled' : ''}`}>
+                    <button 
+                      className="page-link" 
+                      onClick={() => handlePageChange(pagination.page + 1)}
+                      disabled={pagination.page === totalPages}
+                    >
+                      Next
+                    </button>
+                  </li>
+                </ul>
+              </nav>
+            )}
+          </div>
+        )}
 
         {/* Custom styles to match Canvas UI and fix the issues */}
         <style>{`
@@ -550,12 +564,10 @@ const Dashboard: React.FC = () => {
             grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
             gap: 1rem;
           }
-
           .course-card-wrapper {
             display: flex;
             width: 100%;
           }
-
           .course-card {
             display: flex;
             flex-direction: column;
@@ -563,14 +575,11 @@ const Dashboard: React.FC = () => {
             transition: transform 0.2s, box-shadow 0.2s;
             border: 1px solid #dee2e6;
             overflow: hidden;
-      
           }
-
           .course-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
           }
-
           .course-card-logo {
             height: 200px;
             display: flex;
@@ -579,19 +588,16 @@ const Dashboard: React.FC = () => {
             background-color: #9ad9ee;
             overflow: hidden;
           }
-
           .course-card-body {
             flex-grow: 1;
             padding: 1rem;
           }
-
           .course-card .card-title {
             font-size: 1.2rem;
             margin-bottom: 0.5rem;
             font-weight: 500;
             color: #2d3b45;
           }
-
           .course-description {
             display: -webkit-box;
             -webkit-line-clamp: 3;
@@ -600,10 +606,9 @@ const Dashboard: React.FC = () => {
             text-overflow: ellipsis;
             color: #5a6268;
             font-size: 0.9rem;
-            background-color: transparent;  
-            padding: 0;  
+            background-color: transparent; 
+            padding: 0; 
           }
-
           .list-description {
             color: #5a6268;
             font-size: 0.9rem;
@@ -616,24 +621,20 @@ const Dashboard: React.FC = () => {
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
           }
-
           .course-card .card-footer {
             background-color: #f8f9fa;
             border-top: 1px solid #dee2e6;
             padding: 0.75rem;
           }
-
           /* Match Canvas button styles */
           .btn-primary {
             background-color: #0374B5;
             border-color: #0374B5;
           }
-
           .btn-primary:hover {
             background-color: #02659E;
             border-color: #02659E;
           }
-
           /* Improved loading styles */
           .static-loading-container {
             display: flex;
@@ -644,7 +645,6 @@ const Dashboard: React.FC = () => {
             border: none;
             margin: 2rem 0;
           }
-
           .loading-text {
             color: #6c757d;
             font-size: 1rem;
@@ -652,7 +652,6 @@ const Dashboard: React.FC = () => {
             position: relative;
             padding-left: 30px;
           }
-
           .loading-text:before {
             content: "";
             position: absolute;
@@ -666,22 +665,18 @@ const Dashboard: React.FC = () => {
             border-top-color: transparent;
             animation: spin 1s linear infinite;
           }
-
           @keyframes spin {
             to { transform: translateY(-50%) rotate(360deg); }
           }
-
           /* Add content-visibility for performance */
           .courses-grid > div {
             content-visibility: auto;
             contain-intrinsic-size: 350px;
           }
-
           .list-group-item {
             content-visibility: auto;
             contain-intrinsic-size: 80px;
           }
-
           @media (max-width: 768px) {
             .courses-grid {
               grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -693,7 +688,11 @@ const Dashboard: React.FC = () => {
       {/* Course Form Modal */}
       <Modal 
         show={isFormModalOpen} 
-        onHide={() => setIsFormModalOpen(false)}
+        onHide={() => {
+          setIsFormModalOpen(false);
+          // Clear the selected course in Redux store when closing modal
+          dispatch(setCourse(null));
+        }}
         size="lg"
         centered
       >
@@ -704,7 +703,11 @@ const Dashboard: React.FC = () => {
           <CourseForm
             course={course}
             onSubmit={handleSubmitCourse}
-            onCancel={() => setIsFormModalOpen(false)}
+            onCancel={() => {
+              setIsFormModalOpen(false);
+              // Clear the selected course in Redux store when canceling
+              dispatch(setCourse(null));
+            }}
           />
         </Modal.Body>
       </Modal>

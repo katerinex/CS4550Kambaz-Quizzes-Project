@@ -14,7 +14,10 @@ import {
   InputGroup, 
   Dropdown, 
   Modal, 
-  Alert 
+  Alert,
+  Nav,
+  Row,
+  Col
 } from "react-bootstrap";
 import {
   FaSearch,
@@ -23,7 +26,9 @@ import {
   FaPlus,
   FaEllipsisV,
   FaCheck,
-  FaCalendarAlt
+  FaCalendarAlt,
+  FaFileAlt,
+  FaClock
 } from "react-icons/fa";
 import * as client from "./client";
 import { formatDate } from "./dateUtils";
@@ -40,9 +45,16 @@ const AssignmentsPage = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [assignmentToDelete, setAssignmentToDelete] = useState<string | null>(null);
   const [showAssignmentDatesModal, setShowAssignmentDatesModal] = useState(false);
-  // Add state for group deletion
+  
+  // State for group editing/deletion
+  const [showGroupEditModal, setShowGroupEditModal] = useState(false);
+  const [groupToEdit, setGroupToEdit] = useState<string | null>(null);
+  const [newGroupName, setNewGroupName] = useState("");
   const [showGroupDeleteModal, setShowGroupDeleteModal] = useState(false);
   const [groupToDelete, setGroupToDelete] = useState<string | null>(null);
+  
+  // View mode state for student view only
+  const [viewMode, setViewMode] = useState<'date' | 'type'>('type');
   
   // Get assignments from Redux store
   const assignments = useSelector((state: any) => 
@@ -50,7 +62,9 @@ const AssignmentsPage = () => {
   
   // Get current user from Redux store
   const { user } = useSelector((state: any) => state.accountReducer);
-  const isFaculty = user?.role === "FACULTY" || user?.role === "ADMIN";
+  const isInstructor = user?.role === "FACULTY" || user?.role === "ADMIN";
+  const isTA = user?.role === "TA";
+  const canEdit = isInstructor || isTA;
   
   // Fetch assignments for this course
   const fetchAssignments = async () => {
@@ -98,6 +112,8 @@ const AssignmentsPage = () => {
   
   // Handle toggling publish status
   const handleTogglePublish = async (assignment: any) => {
+    if (!canEdit) return;
+    
     try {
       const updatedAssignment = { 
         ...assignment, 
@@ -112,39 +128,10 @@ const AssignmentsPage = () => {
     }
   };
   
-  // Handle deleting a group
-  const handleGroupDeleteClick = (groupName: string) => {
-    setGroupToDelete(groupName);
-    setShowGroupDeleteModal(true);
-  };
-  
-  const confirmGroupDelete = async () => {
-    if (groupToDelete) {
-      try {
-        // This would normally involve a backend call to delete the group
-        // For now, we'll just log the action
-        console.log(`Deleting group: ${groupToDelete}`);
-        
-        // In a real implementation, you'd delete the group from the database
-        // and update the assignments to move them to another group
-        
-        // Close the modal and reset state
-        setShowGroupDeleteModal(false);
-        setGroupToDelete(null);
-      } catch (error) {
-        console.error("Error deleting group:", error);
-        setError("Failed to delete group. Please try again.");
-      }
-    }
-  };
-  
-  // State for group editing
-  const [showGroupEditModal, setShowGroupEditModal] = useState(false);
-  const [groupToEdit, setGroupToEdit] = useState<string | null>(null);
-  const [newGroupName, setNewGroupName] = useState("");
-  
   // Handle editing a group
   const handleGroupEdit = (groupName: string) => {
+    if (!canEdit) return;
+    
     setGroupToEdit(groupName);
     setNewGroupName(groupName);
     setShowGroupEditModal(true);
@@ -171,8 +158,37 @@ const AssignmentsPage = () => {
     }
   };
   
+  // Handle deleting a group
+  const handleGroupDeleteClick = (groupName: string) => {
+    if (!canEdit) return;
+    
+    setGroupToDelete(groupName);
+    setShowGroupDeleteModal(true);
+  };
+  
+  const confirmGroupDelete = async () => {
+    if (groupToDelete) {
+      try {
+        // This would normally involve a backend call to delete the group
+        console.log(`Deleting group: ${groupToDelete}`);
+        
+        // In a real implementation, you'd delete the group from the database
+        // and update the assignments to move them to another group
+        
+        // Close the modal and reset state
+        setShowGroupDeleteModal(false);
+        setGroupToDelete(null);
+      } catch (error) {
+        console.error("Error deleting group:", error);
+        setError("Failed to delete group. Please try again.");
+      }
+    }
+  };
+  
   // Handle publishing all assignments in a group
   const handleGroupPublish = (groupName: string) => {
+    if (!canEdit) return;
+    
     // Implementation for publishing all assignments in a group would go here
     alert(`Publish all in group: ${groupName}`);
   };
@@ -183,19 +199,52 @@ const AssignmentsPage = () => {
   );
   
   // Determine visible assignments based on user role
-  const visibleAssignments = isFaculty 
+  const visibleAssignments = canEdit 
     ? filteredAssignments 
     : filteredAssignments.filter((assignment: any) => assignment.published);
   
-  // Group assignments by module
+  // Group assignments by module or date depending on view mode
   const groupedAssignments = visibleAssignments.reduce((groups: any, assignment: any) => {
-    const module = assignment.group || "Assignments";
-    if (!groups[module]) {
-      groups[module] = [];
+    // Determine the group key based on view mode
+    let groupKey;
+    
+    if (canEdit || viewMode === 'type') {
+      // For Faculty/TA or student type view: Group by assignment type/module
+      groupKey = assignment.group || "Assignments";
+    } else {
+      // For student date view: Group by due date status (Upcoming, Past, etc.)
+      if (!assignment.dueDate) {
+        groupKey = "No Due Date";
+      } else {
+        const now = new Date();
+        const dueDate = new Date(assignment.dueDate);
+        
+        if (dueDate > now) {
+          groupKey = "Upcoming Assignments";
+        } else {
+          groupKey = "Past Assignments";
+        }
+      }
     }
-    groups[module].push(assignment);
+    
+    if (!groups[groupKey]) {
+      groups[groupKey] = [];
+    }
+    
+    groups[groupKey].push(assignment);
     return groups;
   }, {});
+  
+  // Sort assignments in each group by due date if in date view
+  if (!canEdit && viewMode === 'date') {
+    Object.keys(groupedAssignments).forEach(groupName => {
+      groupedAssignments[groupName].sort((a: any, b: any) => {
+        if (!a.dueDate) return 1;
+        if (!b.dueDate) return -1;
+        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
+      });
+    });
+  }
 
   // Initialize when component mounts
   useEffect(() => {
@@ -204,6 +253,8 @@ const AssignmentsPage = () => {
   
   // Function to create a new assignment by navigating to the editor page
   const handleCreateAssignment = () => {
+    if (!canEdit) return;
+    
     navigate(`/Kambaz/Courses/${cid}/Assignments/new`);
   };
   
@@ -217,7 +268,7 @@ const AssignmentsPage = () => {
   
   return (
     <div className="assignments-page p-4">
-      {/* Header with search and buttons */}
+      {/* Header with search and view mode controls */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div className="search-container" style={{ width: '300px' }}>
           <InputGroup>
@@ -234,42 +285,73 @@ const AssignmentsPage = () => {
           </InputGroup>
         </div>
         
-        <div className="action-buttons d-flex align-items-center">
-          <Button 
-            variant="outline-secondary" 
-            className="me-2"
-            onClick={() => {}} 
-            aria-label="Add group"
-          >
-            <FaPlus className="me-1" /> Group
-          </Button>
+        <div className="d-flex align-items-center">
+          {/* View mode buttons - only for students */}
+          {!canEdit && (
+            <div className="view-mode-buttons me-3">
+              <Nav className="border rounded">
+                <Nav.Item>
+                  <Nav.Link 
+                    active={viewMode === 'date'} 
+                    onClick={() => setViewMode('date')}
+                    className={`rounded-start ${viewMode === 'date' ? 'active' : ''}`}
+                  >
+                    SHOW BY DATE
+                  </Nav.Link>
+                </Nav.Item>
+                <Nav.Item>
+                  <Nav.Link 
+                    active={viewMode === 'type'} 
+                    onClick={() => setViewMode('type')}
+                    className={`rounded-end ${viewMode === 'type' ? 'active' : ''}`}
+                  >
+                    SHOW BY TYPE
+                  </Nav.Link>
+                </Nav.Item>
+              </Nav>
+            </div>
+          )}
           
-          <Button 
-            variant="success" 
-            className="me-2"
-            onClick={handleCreateAssignment}
-            aria-label="Add assignment"
-          >
-            <FaPlus className="me-1" /> Assignment
-          </Button>
-          
-          <Dropdown>
-            <Dropdown.Toggle variant="light" id="dropdown-basic" className="btn-outline-secondary">
-              <FaEllipsisV />
-            </Dropdown.Toggle>
-            
-            <Dropdown.Menu align="end">
-              <Dropdown.Item onClick={handleEditAssignmentDates}>
-                Edit Assignment Dates
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => {}}>
-                Assignment Groups Weight
-              </Dropdown.Item>
-              <Dropdown.Item onClick={() => {}}>
-                Commons Favorites
-              </Dropdown.Item>
-            </Dropdown.Menu>
-          </Dropdown>
+          {/* Only show admin controls for faculty/TA */}
+          {canEdit && (
+            <div className="action-buttons d-flex align-items-center">
+              <Button 
+                variant="outline-secondary" 
+                className="me-2"
+                onClick={() => {}} 
+                aria-label="Add group"
+              >
+                <FaPlus className="me-1" /> Group
+              </Button>
+              
+              <Button 
+                variant="success" 
+                className="me-2"
+                onClick={handleCreateAssignment}
+                aria-label="Add assignment"
+              >
+                <FaPlus className="me-1" /> Assignment
+              </Button>
+              
+              <Dropdown>
+                <Dropdown.Toggle variant="light" id="dropdown-basic" className="btn-outline-secondary">
+                  <FaEllipsisV />
+                </Dropdown.Toggle>
+                
+                <Dropdown.Menu align="end">
+                  <Dropdown.Item onClick={handleEditAssignmentDates}>
+                    Edit Assignment Dates
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => {}}>
+                    Assignment Groups Weight
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => {}}>
+                    Commons Favorites
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+          )}
         </div>
       </div>
       
@@ -298,8 +380,8 @@ const AssignmentsPage = () => {
                   <span className="discussion-toggle me-2">▼</span>
                   {groupName}
                 </h6>
-                {/* Group options menu - Added back with more options */}
-                {isFaculty && (
+                {/* Only show group options for faculty/TA */}
+                {canEdit && (
                   <Dropdown className="group-dropdown">
                     <Dropdown.Toggle variant="link" id={`dropdown-group-${groupName}`} className="btn-sm text-muted">
                       <FaEllipsisV />
@@ -321,49 +403,93 @@ const AssignmentsPage = () => {
               
               <div className="assignment-items" id={`${groupName.toLowerCase().replace(/\s+/g, '-')}-content`}>
                 {groupAssignments.map((assignment: any) => (
-                  <div key={assignment._id} className="assignment-item p-3 border-top d-flex">
-                    <div className="flex-grow-1">
-                      <div className="d-flex align-items-center">
-                        <i className="icon-assignment me-2"></i>
-                        <div>
-                          <h6 className="mb-0">{assignment.title}</h6>
-                          <div className="text-muted small">
-                            {assignment.module || "Module"} | {assignment.points || 0} pts
-                            {assignment.dueDate && (
-                              <span className="ms-2">
-                                <FaCalendarAlt className="me-1" />
-                                Due: {formatDate(assignment.dueDate, { includeTime: true })}
-                              </span>
-                            )}
+                  <div key={assignment._id} className="assignment-item p-3 border-top">
+                    {/* Student view of assignment */}
+                    {!canEdit ? (
+                      <Row className="w-100">
+                        <Col xs={9}>
+                          <div className="d-flex align-items-center">
+                            <FaFileAlt className="assignment-icon me-3" />
+                            <div>
+                              <h6 className="mb-0">
+                                <a href={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`} className="assignment-title">
+                                  {assignment.title}
+                                </a>
+                              </h6>
+                              <div className="text-muted small">
+                                {assignment.points || 0} pts
+                                {assignment.dueDate && (
+                                  <span className="ms-2">
+                                    Due: {formatDate(assignment.dueDate, { includeTime: true })}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                           </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="assignment-icons d-flex align-items-center">
-                      <div className="icons">
-                        {assignment.published && (
-                          <FaCheck className="text-success me-2" />
-                        )}
-                      </div>
-                      {isFaculty && (
-                        <Dropdown className="dropdown-wrapper">
-                          <Dropdown.Toggle variant="link" id={`dropdown-${assignment._id}`} className="btn-sm text-muted dropdown-toggle-fixed">
-                            <FaEllipsisV />
-                          </Dropdown.Toggle>
-                          <Dropdown.Menu align="end" className="dropdown-menu-higher-z">
-                            <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`)}>
-                              <FaEdit className="me-2" /> Edit
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleTogglePublish(assignment)}>
-                              <FaCheck className="me-2" /> {assignment.published ? "Unpublish" : "Publish"}
-                            </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleDeleteClick(assignment._id)}>
-                              <FaTrash className="me-2" /> Delete
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
-                      )}
-                    </div>
+                        </Col>
+                        <Col xs={3} className="d-flex justify-content-end align-items-center">
+                          {assignment.submitted ? (
+                            <span className="text-success">
+                              <FaCheck className="me-1" /> Submitted
+                            </span>
+                          ) : assignment.dueDate && new Date(assignment.dueDate) < new Date() ? (
+                            <span className="text-danger">
+                              <FaClock className="me-1" /> Past Due
+                            </span>
+                          ) : (
+                            <Button variant="primary" size="sm">
+                              Submit
+                            </Button>
+                          )}
+                        </Col>
+                      </Row>
+                    ) : (
+                      /* Faculty/TA view of assignment */
+                      <Row className="w-100">
+                        <Col xs={9}>
+                          <div className="d-flex align-items-center">
+                            <i className="icon-assignment me-2"></i>
+                            <div>
+                              <h6 className="mb-0">{assignment.title}</h6>
+                              <div className="text-muted small">
+                                {assignment.module || "Module"} | {assignment.points || 0} pts
+                                {assignment.dueDate && (
+                                  <span className="ms-2">
+                                    <FaCalendarAlt className="me-1" />
+                                    Due: {formatDate(assignment.dueDate, { includeTime: true })}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </Col>
+                        <Col xs={3} className="d-flex justify-content-end align-items-center">
+                          <div className="assignment-icons d-flex align-items-center">
+                            <div className="icons">
+                              {assignment.published && (
+                                <FaCheck className="text-success me-2" />
+                              )}
+                            </div>
+                            <Dropdown className="dropdown-wrapper">
+                              <Dropdown.Toggle variant="link" id={`dropdown-${assignment._id}`} className="btn-sm text-muted dropdown-toggle-fixed">
+                                <FaEllipsisV />
+                              </Dropdown.Toggle>
+                              <Dropdown.Menu align="end" className="dropdown-menu-higher-z">
+                                <Dropdown.Item onClick={() => navigate(`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`)}>
+                                  <FaEdit className="me-2" /> Edit
+                                </Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleTogglePublish(assignment)}>
+                                  <FaCheck className="me-2" /> {assignment.published ? "Unpublish" : "Publish"}
+                                </Dropdown.Item>
+                                <Dropdown.Item onClick={() => handleDeleteClick(assignment._id)}>
+                                  <FaTrash className="me-2" /> Delete
+                                </Dropdown.Item>
+                              </Dropdown.Menu>
+                            </Dropdown>
+                          </div>
+                        </Col>
+                      </Row>
+                    )}
                   </div>
                 ))}
               </div>
@@ -376,7 +502,7 @@ const AssignmentsPage = () => {
       {!loading && visibleAssignments.length === 0 && (
         <div className="alert alert-info">
           <p className="mb-0">
-            {isFaculty 
+            {canEdit 
               ? "No assignments found. Use the '+Assignment' button to create your first assignment."
               : "No assignments have been created for this course yet."
             }
@@ -420,13 +546,6 @@ const AssignmentsPage = () => {
         </Modal.Footer>
       </Modal>
       
-      {/* Edit Assignment Dates Modal */}
-      <EditAssignmentDatesModal 
-        show={showAssignmentDatesModal} 
-        onHide={() => setShowAssignmentDatesModal(false)} 
-        assignments={assignments}
-      />
-      
       {/* Group Edit Modal */}
       <Modal show={showGroupEditModal} onHide={() => setShowGroupEditModal(false)}>
         <Modal.Header closeButton>
@@ -458,6 +577,13 @@ const AssignmentsPage = () => {
           </Button>
         </Modal.Footer>
       </Modal>
+      
+      {/* Edit Assignment Dates Modal */}
+      <EditAssignmentDatesModal 
+        show={showAssignmentDatesModal} 
+        onHide={() => setShowAssignmentDatesModal(false)} 
+        assignments={assignments}
+      />
     </div>
   );
 };
