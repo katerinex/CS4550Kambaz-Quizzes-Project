@@ -1,0 +1,24 @@
+
+[
+  {
+    "_id": "Q101",
+    "title": "Midterm Exam",
+    "description": "Comprehensive midterm covering chapters 1-5",
+    "quizType": "GRADED_QUIZ",
+    "points": 100,
+    "assignmentGroup": "EXAMS",
+    "shuffleAnswers": true,
+    "timeLimit": 120,
+    "multipleAttempts": false,
+    "attemptCount": 1,
+    "showCorrectAnswers": true,
+    "accessCode": "",
+    "oneQuestionAtATime": true,
+    "webcamRequired": true,
+    "lockQuestionsAfterAnswering": true,
+    "dueDate": "2024-03-15T23:59:00",
+    "availableDate": "2024-03-15T09:00:00",
+    "untilDate": "2024-03-15T23:59:00"
+  }
+]
+  

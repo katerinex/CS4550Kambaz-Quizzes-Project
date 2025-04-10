@@ -1,0 +1,163 @@
+/* QuizTake.css  */
+
+/* Container styles */
+.quiz-intro-container,
+.quiz-active-container,
+.quiz-results-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* Timer styles */
+.quiz-timer {
+  background-color: #f8f9fa;
+  padding: 10px 15px;
+  border-radius: 4px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-timer span:last-child {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+/* Make the timer blink only when low time warning is active */
+.quiz-timer .text-danger {
+  font-weight: bold !important;
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+/* Progress bar container */
+.quiz-progress {
+  margin-bottom: 1.5rem;
+}
+
+/* Question card styles */
+.quiz-question-card {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+}
+
+.quiz-question-card .card-header {
+  background-color: #f0f7ff;
+  font-weight: 500;
+}
+
+.question-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+.question-answers {
+  margin-top: 1.5rem;
+  padding-left: 1rem;
+}
+
+/* Form styles for question answers */
+.question-answers .form-check {
+  margin-bottom: 0.75rem;
+  padding-left: 1.75rem;
+}
+
+.question-answers .form-check-input {
+  margin-top: 0.3rem;
+}
+
+.question-answers .form-label {
+  font-weight: 500;
+}
+
+/* Navigation buttons in the footer */
+.quiz-question-card .card-footer {
+  background-color: #f8f9fa;
+  padding: 1rem;
+}
+
+/* Quiz intro screen styles */
+.quiz-instructions {
+  background-color: #f8f9fa;
+  padding: 1.25rem;
+  border-radius: 4px;
+  border-left: 4px solid #007bff;
+}
+
+.quiz-meta-info {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.quiz-meta-info p {
+  margin-bottom: 0.5rem;
+}
+
+/* Results screen styles */
+.quiz-results-container h2 {
+  color: #28a745;
+  font-weight: 600;
+}
+
+.question-results {
+  margin-top: 2rem;
+}
+
+/* Correct and incorrect styling */
+.border-success {
+  border-width: 2px !important;
+}
+
+.border-danger {
+  border-width: 2px !important;
+}
+
+.bg-success.text-white {
+  background-color: #28a745 !important;
+}
+
+.bg-danger.text-white {
+  background-color: #dc3545 !important;
+}
+
+/* Access code modal styles */
+.modal-header {
+  background-color: #f0f7ff;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quiz-intro-container,
+  .quiz-active-container,
+  .quiz-results-container {
+    padding: 10px;
+  }
+  
+  .question-answers {
+    padding-left: 0.5rem;
+  }
+  
+  .d-flex.justify-content-between {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .d-flex.justify-content-between button {
+    width: 100%;
+  }
+}
+
+/* Fix for mobile device button alignment in quiz-taking footer */
+@media (max-width: 576px) {
+  .quiz-question-card .card-footer .d-flex {
+    flex-direction: row !important;
+  }
+  
+  .quiz-question-card .card-footer .d-flex button {
+    width: auto;
+  }
+}

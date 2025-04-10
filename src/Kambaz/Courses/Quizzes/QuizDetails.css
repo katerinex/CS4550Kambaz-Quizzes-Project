@@ -1,0 +1,201 @@
+
+/* src/Kambaz/Courses/Quizzes/QuizDetails.css */
+
+.quiz-details-container {
+  padding: 1.5rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+/* Quiz title and header styling */
+.quiz-details-container h1 {
+  font-size: 1.75rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+/* Badge styling for published/unpublished status */
+.badge {
+  font-weight: normal;
+  font-size: 0.75rem;
+  padding: 0.35rem 0.65rem;
+}
+
+.bg-success {
+  background-color: #2d7b43 !important; /* Canvas green color */
+}
+
+.bg-secondary {
+  background-color: #6c757d !important;
+}
+
+/* Card styling */
+.card {
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #dee2e6;
+  margin-bottom: 1.5rem;
+}
+
+.card-header {
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #dee2e6;
+  font-weight: 500;
+  font-size: 1.1rem;
+  padding: 0.75rem 1.25rem;
+}
+
+/* Property list styling - matches Canvas layout */
+.quiz-properties .list-group-item {
+  border-left: none;
+  border-right: none;
+  padding: 0.75rem 1.25rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.quiz-properties .list-group-item:first-child {
+  border-top: none;
+}
+
+.quiz-properties .list-group-item strong {
+  font-weight: 500;
+  min-width: 180px;
+  color: #333;
+}
+
+/* Student progress section */
+.student-attempts-info {
+  color: #333;
+}
+
+.student-attempts-info p {
+  margin-bottom: 0.5rem;
+}
+
+/* Canvas-style button styling */
+.btn-primary {
+  background-color: #0374B5; /* Canvas blue color */
+  border-color: #0374B5;
+}
+
+.btn-primary:hover {
+  background-color: #005a8c;
+  border-color: #005a8c;
+}
+
+.btn-outline-primary {
+  color: #0374B5;
+  border-color: #0374B5;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0374B5;
+  color: white;
+}
+
+.btn-success {
+  background-color: #2d7b43; /* Canvas green color */
+  border-color: #2d7b43;
+}
+
+.btn-success:hover {
+  background-color: #236032;
+  border-color: #236032;
+}
+
+/* Description box styling */
+.bg-light {
+  background-color: #f9f9f9 !important;
+  border: 1px solid #eee;
+}
+
+/* Canvas-style two-column layout for properties */
+.quiz-details-table {
+  width: 100%;
+  border: 1px solid #ddd;
+  border-collapse: collapse;
+}
+
+.quiz-details-table tr td {
+  padding: 10px 15px;
+  border-bottom: 1px solid #ddd;
+}
+
+.quiz-details-table tr td:first-child {
+  width: 35%;
+  font-weight: 500;
+  background-color: #f8f9fa;
+}
+
+.quiz-details-table tr td:last-child {
+  width: 65%;
+}
+
+/* Updated styles for the property list items to match Canvas layout */
+.quiz-property-label {
+  font-weight: 500;
+  width: 35%;
+  text-align: right;
+  padding-right: 20px;
+}
+
+.quiz-property-value {
+  width: 65%;
+}
+
+/* Bottom action buttons */
+.quiz-actions {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.quiz-actions .btn {
+  margin: 0 0.5rem;
+}
+
+/* Custom alignment for property rows */
+.property-row {
+  display: flex;
+  border-bottom: 1px solid #dee2e6;
+  padding: 0.75rem 0;
+}
+
+.property-label {
+  font-weight: 500;
+  width: 45%;
+  text-align: right;
+  padding-right: 20px;
+  color: #333;
+}
+
+.property-value {
+  width: 55%;
+  text-align: left;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .quiz-properties .list-group-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .quiz-properties .list-group-item strong {
+    margin-bottom: 0.25rem;
+  }
+  
+  .property-row {
+    flex-direction: column;
+  }
+  
+  .property-label, .property-value {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .property-label {
+    margin-bottom: 0.25rem;
+  }
+}
