@@ -1,4 +1,3 @@
-
 // src/Kambaz/Courses/Quizzes/QuizDetails.tsx
 
 import React, { useState, useEffect } from "react";
@@ -185,15 +184,29 @@ const QuizDetails: React.FC = () => {
                   Start Quiz
                 </Button>
               ) : (
-                <Button variant="secondary" disabled>
-                  {new Date() < new Date(quiz.availableDate)
-                    ? "Not Available Yet"
-                    : new Date() > new Date(quiz.untilDate)
+                <div className="d-flex">
+                  <Button variant="secondary" disabled className="me-2">
+                    {new Date() < new Date(quiz.availableDate)
+                      ? "Not Available Yet"
+                      : new Date() > new Date(quiz.untilDate)
                       ? "Closed"
                       : quiz.userAttempts?.[user._id]?.attempts >= (quiz.attemptsAllowed ?? 1)
-                        ? "No Attempts Remaining"
-                        : "Unavailable"}
+                      ? "No Attempts Remaining"
+                      : "Unavailable"}
+                  </Button>
+                  <Button
+                    variant="primary"
+                    disabled={attempts.length === 0}
+                    onClick={() => {
+                      if (attempts.length > 0) {
+                        const lastAttempt = attempts[attempts.length - 1];
+                        navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}/attempt/${lastAttempt._id}`);
+                      }
+                    }}
+                  >
+                    See Last Attempt
                 </Button>
+                </div>
               )}
             </>
           ) : null}

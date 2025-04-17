@@ -1,4 +1,3 @@
-
 //src/Kambaz/Courses/Quizzes/QuizPreview.tsx
 
 import React, { useEffect, useState } from "react";
@@ -97,8 +96,11 @@ const QuizPreview: React.FC = () => {
     
     setAnswers(newAnswers);
     
-    // Calculate current score
-    const score = newAnswers.reduce((sum, answer) => sum + (answer.isCorrect ? 1 : 0), 0);
+    // Calculate current score based on question points
+    const score = newAnswers.reduce((sum, answer) => {
+      const question = quiz?.questions?.find(q => q.id === answer.questionId);
+      return sum + (answer.isCorrect ? (question?.points || 0) : 0);
+    }, 0);
     setCurrentScore(score);
   };
   

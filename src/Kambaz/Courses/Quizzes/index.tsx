@@ -10,6 +10,7 @@ import QuizDetails from "./QuizDetails";
 import QuizEditor from "./QuizEditor";
 import QuizPreview from "./QuizPreview";
 import QuizTake from "./QuizTake";
+import LastAttemptDetails from "./LastAttemptDetails";
 
 // Define roles that have editing permissions
 const EDITOR_ROLES = ['FACULTY', 'ADMIN', 'TA'];
@@ -113,6 +114,8 @@ const Quizzes: React.FC<QuizzesProps> = ({ courseId }) => {
 
         {/* Take quiz route - accessible to all users with specific behavior based on role */}
         <Route path=":qid/take" element={<QuizTake />} />
+
+        <Route path=":qid/attempt/:attemptId" element={<LastAttemptDetails />}/>
       </Routes>
     </div>
   );

@@ -208,14 +208,14 @@ const QuizTake: React.FC<QuizTakeProps> = ({
         };
       });
 
-      // if (!previewMode && user && qid) {
-      //   const existingAttempts = await findQuizAttemptsByQuizAndUser(qid, user._id);
-      //   const maxAttempts = quiz.multipleAttempts ? quiz.attemptsAllowed : 1;
-      //   if (existingAttempts.length >= maxAttempts) {
-      //     alert("You have reached the maximum number of allowed attempts for this quiz.");
-      //     return;
-      //   }
-      // }
+      // Calculate total score based on correct answers and question points
+      const totalScore = answerArray.reduce((sum, answer) => {
+        const question = questions.find((q: any) => q.id === answer.questionId);
+        return sum + (answer.isCorrect ? (question?.points || 0) : 0);
+      }, 0);
+
+      // Calculate total possible points
+      const totalPossiblePoints = questions.reduce((sum, q) => sum + (q.points || 0), 0);
 
       try {
         console.log("CREATING ATTEMPT");
@@ -225,8 +225,8 @@ const QuizTake: React.FC<QuizTakeProps> = ({
           answers: answerArray,
           timeSpent: timeSpent,
           timestamp: "",
-          score: 0,
-          totalPoints: 0
+          score: totalScore,
+          totalPoints: totalPossiblePoints
         });
         dispatch(createQuizAttemptSuccess(newAttempt));
         navigate(`/Kambaz/Courses/${cid}/Quizzes/${qid}?refreshAttempts=true`);
@@ -234,7 +234,6 @@ const QuizTake: React.FC<QuizTakeProps> = ({
       } catch (err) {
         console.error("Failed to create quiz attempt:", err);
       }
-
     }
   };
 
