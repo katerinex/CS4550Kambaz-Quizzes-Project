@@ -28,6 +28,7 @@ app.set('trust proxy', process.env.TRUST_PROXY === '1' ? 1 : 0);
 const FRONTEND_URLS = [
   process.env.NETLIFY_URL,
   "https://jovial-elf-866e6f.netlify.app", 
+  "https://venerable-taffy-a8e7f0.netlify.app",
   "http://localhost:5173",
   "http://127.0.0.1:5173"
  
