@@ -1,0 +1,161 @@
+/* src/Kambaz/Courses/Quizzes/QuizEditor.css */
+.quiz-editor-container {
+  padding: 1.5rem;
+  background-color: #fff;
+  border-radius: 0.3rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.quiz-editor-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: #6c757d;
+}
+
+.quiz-editor-header span {
+  margin: 0 0.5rem;
+}
+
+.quiz-editor-header a {
+  color: #0d6efd;
+  text-decoration: none;
+}
+
+.quiz-editor-header a:hover {
+  text-decoration: underline;
+}
+
+.quiz-editor-title {
+  font-size: 1.8rem;
+  font-weight: 500;
+  margin-bottom: 0;
+}
+
+.quiz-editor-tabs {
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-link {
+  padding: 0.75rem 1rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: #495057;
+  font-weight: 500;
+}
+
+.nav-link:hover {
+  border-bottom-color: #ced4da;
+}
+
+.nav-link.active {
+  color: #0d6efd;
+  border-bottom-color: #0d6efd;
+  background-color: transparent;
+}
+
+.quiz-editor-form {
+  max-width: 100%;
+}
+
+.options-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background-color: #f8f9fa;
+  border-radius: 0.3rem;
+}
+
+.options-section-title {
+  font-size: 1.1rem;
+  font-weight: 500;
+  margin-bottom: 1rem;
+  color: #212529;
+}
+
+.conditional-field {
+  margin-top: 0.5rem;
+  margin-left: 1.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.description-editor {
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  display: flex;
+  background-color: #f8f9fa;
+  border-bottom: 1px solid #ced4da;
+  padding: 0.5rem;
+}
+
+.editor-toolbar button {
+  background: none;
+  border: none;
+  color: #6c757d;
+  padding: 0.25rem 0.5rem;
+  margin-right: 0.25rem;
+  cursor: pointer;
+  border-radius: 0.25rem;
+}
+
+.editor-toolbar button:hover {
+  background-color: #e9ecef;
+}
+
+.editor-content {
+  padding: 0.75rem;
+  min-height: 120px;
+}
+
+.date-input-group {
+  position: relative;
+}
+
+.calendar-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.quiz-editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 2rem;
+}
+
+/* For questions and answers styling */
+.question-container {
+  margin-bottom: 2rem;
+  border: 1px solid #e9ecef;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.question-header {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-bottom: 1px solid #e9ecef;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.question-body {
+  padding: 1.5rem;
+}
+
+.question-actions {
+  display: flex;
+  gap: 0.5rem;
+}

@@ -1,0 +1,179 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+body {
+  background-color: white;
+  font-family: Arial, sans-serif;
+}
+
+/* src/App.css or a dedicated CSS file */
+
+/* General Styles */
+body {
+  font-family: sans-serif; /* Or your preferred font */
+}
+
+/* Kambaz Dashboard Styles */
+#wd-dashboard {
+  padding: 20px;
+}
+
+#wd-dashboard-title,
+#wd-dashboard-published {
+  margin-bottom: 10px;
+}
+
+#wd-dashboard-courses .card {
+  height: 100%; /* Make card heights consistent */
+}
+
+#wd-dashboard-course-link {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#wd-dashboard-course .card-img-top {
+  object-fit: cover; /* Maintain aspect ratio and cover the area */
+}
+
+#wd-dashboard-course .card-body {
+  flex-grow: 1; /* Allow card body to expand */
+}
+
+/* Course Navigation Styles */
+#wd-courses-navigation {
+  width: 250px; /* Fixed width for the navigation */
+  background-color: #f8f9fa; /* Light background color */
+  padding-top: 20px;
+}
+
+#wd-courses-navigation .list-group-item {
+  border: none; /* Remove default border */
+}
+
+#wd-courses-navigation .list-group-item .active { /* Style for active link */
+  background-color: #007bff; /* Blue background */
+  color: white;
+}
+
+/* Modules Styles */
+#wd-home {
+  padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) { /* Example breakpoint */
+  #wd-courses-navigation {
+    width: auto; /* Reset width on smaller screens */
+    display: none; /* Hide by default */
+  }
+  #wd-home > .flex-fill {
+    flex: 1 1 100%;
+  }
+  #wd-course-status {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) { /* Example breakpoint */
+  #wd-dashboard-courses .col {
+    flex: 0 0 50%; /* Two columns on medium screens */
+  }
+}
+
+@media (max-width: 576px) { /* Example breakpoint */
+  #wd-dashboard-courses .col {
+    flex: 0 0 100%; /* One column on small screens */
+  }
+}
+
+/* Add styles for Kambaz Navigation toggle */
+#kambaz-navigation-toggle {
+  display: none; /* Hide on larger screens */
+}
+
+@media (max-width: 992px) {
+  #kambaz-navigation-toggle {
+    display: block; /* Show on smaller screens */
+    position: fixed; /* Or relative, adjust as needed */
+    top: 20px;
+    left: 20px;
+    z-index: 1050; /* Ensure it's above other elements */
+  }
+  #wd-courses-navigation.show { /* Show navigation when toggle is clicked */
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 250px;
+    background-color: #f8f9fa;
+    overflow-y: auto;
+  }
+}
+
+/* Add styles for Course Navigation toggle */
+#course-navigation-toggle {
+  display: none; /* Hide on larger screens */
+}
+
+@media (max-width: 992px) {
+  #course-navigation-toggle {
+    display: block; /* Show on smaller screens */
+    position: fixed; /* Or relative, adjust as needed */
+    top: 20px;
+    right: 20px;
+    z-index: 1050; /* Ensure it's above other elements */
+  }
+   #wd-course-status.show { /* Show navigation when toggle is clicked */
+    display: block;
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100%;
+    width: 250px;
+    background-color: #f8f9fa;
+    overflow-y: auto;
+  }
+}

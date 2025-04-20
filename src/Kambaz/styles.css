@@ -1,0 +1,419 @@
+/* src/Kambaz/styles.css - COMPLETE UPDATED FILE */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Sidebar Styles */
+#wd-kambaz-navigation {
+  width: 110px;
+  background-color: black;
+  padding-top: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 999;
+}
+
+#wd-kambaz-navigation img {
+  width: 75px;
+  margin: 10px 0 20px 0;
+  max-width: 100%;
+  height: auto;
+  background-color: black;
+  
+}
+
+#wd-kambaz-navigation .list-group-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  border: none;
+  background-color: transparent;
+  color: white;
+  transition: background-color 0.3s, color 0.3s;
+  width: 100%;
+}
+
+#wd-kambaz-navigation .list-group-item svg {
+  font-size: 1.8rem;
+  margin-bottom: 5px;
+  color: inherit;
+}
+
+#wd-kambaz-navigation .list-group-item:hover,
+#wd-kambaz-navigation .list-group-item.active {
+  background-color: #333;
+  color: red;
+}
+
+#wd-kambaz-navigation .list-group-item span {
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+#wd-kambaz-navigation .list-group-item.active svg,
+#wd-kambaz-navigation .list-group-item.active span {
+  color: red;
+  font-weight: bold;
+}
+
+/* Main Content Area */
+#wd-kambaz .wd-main-content-offset,
+#wd-signin-screen-container {
+  margin-left: 110px;
+  display: flex;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+#wd-signin-screen-container {
+  padding: 20px;
+}
+
+/* Dashboard */
+#wd-dashboard {
+  margin-left: 100px;
+  padding: 20px;
+}
+
+/* Assignments */
+#wd-assignments {
+  padding: 20px;
+}
+
+#wd-assignments h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+#wd-assignments .list-group-item {
+  border-left: 5px solid green;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 0.5rem;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+#wd-assignments .list-group-item:hover {
+  transform: translateY(-2px);
+}
+
+/* Assignment Editor */
+#wd-assignment-editor {
+  padding: 20px;
+}
+
+#wd-assignment-editor h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+}
+
+#wd-assignment-editor textarea {
+  height: 150px;
+}
+
+/* Sign-in Screen */
+#wd-signin-screen {
+  width: 320px;       /* Fixed width */
+  max-width: none;    /* Override any max-width */
+  min-width: 320px;    /* Ensure it doesn't shrink */
+  height: auto;      /* Allow content to determine height */
+  padding: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  box-sizing: border-box;
+}
+
+/* Sign-up Screen - NEW STYLES */
+.wd-signup-screen {
+  width: 320px;
+  max-width: none;
+  min-width: 320px;
+  height: auto;
+  padding: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  box-sizing: border-box;
+  margin: 0 auto;
+}
+
+/* Account Navigation */
+#wd-account-navigation {
+  width: 200px;
+  background-color: #333;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  height: 100vh;
+  position: fixed;
+  left: 110px;
+  top: 0;
+}
+
+#wd-account-navigation a {
+  color: white;
+  text-decoration: none;
+  display: block;
+  margin-bottom: 10px;
+}
+
+#wd-account-navigation a:hover {
+  text-decoration: underline;
+}
+
+/* Override for Account area when on signin/signup pages */
+#wd-account-screen.signin-signup-layout {
+  background-color: #f8f9fa; /* Light gray background */
+}
+
+#wd-account-screen.signin-signup-layout .flex-grow-1 {
+  background-color: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Sidebar for Account */
+.wd-account-sidebar {
+  background-color: #343a40;
+  color: #fff;
+  border-right: 1px solid #6c757d;
+  padding: 20px;
+}
+
+.wd-account-sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.wd-account-sidebar li a {
+  display: block;
+  padding: 10px;
+  color: #fff;
+  text-decoration: none;
+}
+
+.wd-account-sidebar li a:hover {
+  color: #007bff;
+}
+
+/* Sign-in Form */
+.wd-signin-form {
+  width: 100%; /* Take up full width within the fixed container */
+  box-sizing: border-box;
+}
+
+.wd-signin-form h1 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.wd-signin-form .form-control {
+  width: 100%; /* Take up full width within the form */
+  margin-bottom: 10px;
+  border-radius: 5px;
+  border: 1px solid #ced4da;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+#wd-signin-btn {
+  width: 100%;  /* Take up full width within the form */
+  margin-top: 5px;
+  background-color: #DC4C64; /* Changed to match the image */
+  border-color: #DC4C64;   /* Changed to match the image */
+  border-radius: 5px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  color: white; /* Added to make the text visible */
+}
+
+#wd-signin-btn:hover {
+  background-color: #c93b53;
+  border-color: #c93b53;
+}
+
+#wd-signup-link {
+  display: block;
+  margin-top: 5px;
+  text-align: center;
+}
+
+/* Main Content Area for Account Pages */
+.wd-account-content {
+  margin-left: 310px; /* 110px (main nav) + 200px (account nav) */
+  padding: 20px;
+}
+
+/* Sign-up Form styling - NEW STYLES */
+.wd-signup-screen h1 {
+  font-size: 1.5em;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.wd-signup-screen .form-control {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.wd-signup-btn {
+  background-color: #DC4C64;
+  border-color: #DC4C64;
+}
+
+.wd-signup-btn:hover {
+  background-color: #c93b53;
+  border-color: #c93b53;
+}
+
+.wd-signin-link {
+  display: block;
+  text-align: center;
+  margin-top: 5px;
+}
+
+.bg-light {
+  background-color: #f8f9fa;
+}
+
+.shadow-sm {
+  box-shadow: 0 .125rem .25rem rgba(0,0,0,.075);
+}
+
+.btn-danger {
+  background-color: #DC4C64;
+  border-color: #DC4C64;
+}
+
+.btn-danger:hover {
+  background-color: #c93b53;
+  border-color: #c93b53;
+}
+
+.form-control:focus {
+  border-color: #DC4C64;
+  box-shadow: 0 0 0 0.2rem rgba(220, 76, 100, 0.25);
+}
+
+/* Responsive adjustments - Minimal */
+@media (max-width: 768px) {
+  #wd-kambaz .wd-main-content-offset,
+  #wd-signin-screen-container {
+    margin-left: 0; /* Keep centered, but remove sidebar offset */
+  }
+
+  #wd-account-navigation {
+    position: static;
+    width: 100%;
+  }
+
+  .wd-account-content {
+    margin-left: 0;
+  }
+}
+
+/* VERY Small Screens */
+@media (max-width: 400px) {
+    #wd-signin-screen,
+    .wd-signup-screen {
+        width: 95%; /* Allow it to take up almost the full screen width */
+        min-width: auto; /* Allow it to shrink if necessary */
+        max-width: none;
+    }
+}
+
+
+
+
+
+
+
+/* Add these styles to the end of your existing CSS file */
+
+/* Course Navigation Styles */
+.wd-course-navigation {
+  min-width: 200px;
+  border-radius: 0;
+  margin-right: 20px;
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+}
+
+.wd-course-navigation .list-group-item {
+  border-radius: 0;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  padding: 12px 15px;
+  color: #495057;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.wd-course-navigation .list-group-item:last-child {
+  border-bottom: none;
+}
+
+.wd-course-navigation .list-group-item.active {
+  background-color: #e9ecef;
+  color: #dc3545;
+  border-color: #dee2e6;
+  font-weight: bold;
+}
+
+.wd-course-navigation .list-group-item:hover {
+  background-color: #e9ecef;
+  color: #dc3545;
+}
+
+/* Course Layout */
+#wd-home {
+  padding: 20px;
+  width: 100%;
+}
+
+/* Courses Container */
+#wd-courses {
+  width: 100%;
+  padding: 20px;
+}
+
+/* Make sure there's no duplicate margin */
+#wd-courses .wd-main-content-offset {
+  margin-left: 0;
+}
+
+/* Fix the modules display */
+#wd-modules {
+  width: 100%;
+}
+
+/* Make the course title more prominent */
+#wd-courses h2.text-danger {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+}

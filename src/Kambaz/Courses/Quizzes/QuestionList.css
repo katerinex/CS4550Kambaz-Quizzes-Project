@@ -1,0 +1,34 @@
+/* src/Kambaz/Courses/Quizzes/QuestionList.css*/
+.question-list-container {
+  margin-bottom: 2rem;
+}
+
+.question-list {
+  margin-bottom: 2rem;
+}
+
+.question-list-item {
+  transition: background-color 0.2s ease;
+}
+
+.question-list-item:hover {
+  background-color: #f8f9fa;
+}
+
+.drag-handle {
+  color: #ced4da;
+  cursor: grab;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.question-title {
+  word-break: break-word;
+}
+
+.question-content {
+  flex: 1;
+  min-width: 0;
+}
